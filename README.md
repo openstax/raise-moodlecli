@@ -1,4 +1,4 @@
-# Moodle CLI
+# RAISE Moodle CLI
 
 This is a simple CLI implented as a Python package to automate tasks on Moodle instances. The CLI can be installed and invoked to display help with available commands as follows:
 
