@@ -3,6 +3,7 @@ from . import utils
 MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
+MOODLE_FUNC_IMPORT_COURSE = "core_course_import_course"
 MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
 MOODLE_FUNC_GET_USERS = "core_user_get_users"
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
@@ -109,6 +110,17 @@ class MoodleClient:
         }
         return self._post(
             MOODLE_FUNC_DUPLICATE_COURSE,
+            data
+        )
+
+    def import_course(self, source_id, target_id):
+        data = {
+            "importfrom": source_id,
+            "importto": target_id
+        }
+
+        return self._post(
+            MOODLE_FUNC_IMPORT_COURSE,
             data
         )
 

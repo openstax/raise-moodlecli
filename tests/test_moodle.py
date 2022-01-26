@@ -52,6 +52,26 @@ def test_copy_course(mocker):
     )
 
 
+def test_import_course(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
+
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.import_course(11, 12)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "importfrom": 11,
+            "importto": 12,
+            "wsfunction": moodle.MOODLE_FUNC_IMPORT_COURSE,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
 def test_get_courses(mocker):
     session_mock = mocker.Mock()
     session_mock.get.return_value.json.return_value = {}

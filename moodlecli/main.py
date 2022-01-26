@@ -59,6 +59,17 @@ def copy_course(
 
 
 @cli.command()
+@click.argument("source_id")
+@click.argument("target_id")
+def import_course(source_id, target_id):
+    """Import content from course SOURCE_ID to course TARGET_ID"""
+
+    moodle = get_moodle_client()
+    res = moodle.import_course(source_id, target_id)
+    click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
 def courses():
     """Get list of courses"""
     moodle = get_moodle_client()
@@ -180,3 +191,29 @@ def enrol_bulk(course_id, role_shortname, userdata_csv):
             user[utils.CSV_USER_AUTH]
         )
         moodle.enrol_user(course_id, user_id, role["id"])
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
+def import_bulk_csv(output_csv):
+    """Output an empty CSV template for import-bulk"""
+    writer = csv.DictWriter(
+        output_csv,
+        utils.import_bulk_input_csv_fieldnames()
+    )
+    writer.writeheader()
+
+
+@cli.command()
+@click.argument('source_course_id')
+@click.argument('targetcourses_csv', type=click.File(mode='r'))
+def import_bulk(source_course_id, targetcourses_csv):
+    """Bulk operation to import content into multiple courses"""
+    moodle = get_moodle_client()
+
+    target_course_reader = csv.DictReader(targetcourses_csv)
+    for target_course in target_course_reader:
+        moodle.import_course(
+            source_course_id,
+            target_course[utils.CSV_COURSE_ID]
+        )

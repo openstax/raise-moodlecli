@@ -74,6 +74,13 @@ def enrol_bulk_input_csv_fieldnames():
     ]
 
 
+def import_bulk_input_csv_fieldnames():
+    """Return array of fieldnames used in inpu CSV for bulk import"""
+    return [
+        CSV_COURSE_ID
+    ]
+
+
 def create_or_get_user(moodle_client, firstname, lastname, email, auth):
     """Create a user account if it doesn't exist and return user ID"""
     existing_user = moodle_client.get_user_by_email(
