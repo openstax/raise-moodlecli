@@ -143,15 +143,14 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
     course_reader = csv.DictReader(coursedata_csv)
     try:
         for course in course_reader:
-            updated_course = utils.setup_duplicate_course(  #try catch, where after this fails you just move on 
-                moodle,
+            updated_course = utils.setup_duplicate_course(
                 base_course_id,
                 course,
                 teacher_role["id"],
                 student_role["id"]
             )
             updated_courses.append(updated_course)
-    except: 
+    except TypeError:
         print("ERROR: invalid entry in %s", coursedata_csv)
 
     # print("UPDATED COURSES: ", updated_courses)

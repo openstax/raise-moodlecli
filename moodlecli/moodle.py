@@ -76,7 +76,7 @@ class MoodleClient:
 
     def _create_params(self, service_function, data):
         params = {
-            "wsfunction": service_function, # the requested function name is embedded here 
+            "wsfunction": service_function,
             "moodlewsrestformat": "json",
             "wstoken": self.token
         }

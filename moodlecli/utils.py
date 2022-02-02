@@ -92,7 +92,7 @@ def create_or_get_user(moodle_client, firstname, lastname, email, auth):
         new_user = moodle_client.create_user(
             firstname,
             lastname,
-            email,              # here is where og bug is happening with capitalization
+            email,
             auth
         )
         user_id = new_user["id"]
