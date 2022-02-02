@@ -31,9 +31,10 @@ def get_matching_helper(request, context):
         return {'id': 2}
     elif wsfunction == moodle.MOODLE_FUNC_GET_USERS:
         #if the criteria - if its this function and - the value from CSV is your 'invalid' one 
-        # if request.qs["criteria[0][value]"][0] == 'tommichaels@gmail.com':
-        #     return {'exception': 'value'}
-        return {'users': [{'id': 2}]}
+        if request.qs["criteria[0][value]"][0] == 'invalid@gmail.com':
+            return {'exception': 'value'}
+        else:
+            return {'users': [{'id': 2}]}
     elif wsfunction == moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS:
         return [{'id': 2}]
     else:
@@ -50,6 +51,10 @@ def post_matching_helper(request, context):
         return {'id': 2}
     elif wsfunction == moodle.MOODLE_FUNC_CREATE_USERS:
         return {'users': {'id': 5}}
+    elif wsfunction == moodle.MOODLE_FUNC_IMPORT_COURSE:
+        return {'id': 3}
+    elif wsfunction == moodle.MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY:
+        return {'id': 3}
     else:
         return []
 
@@ -76,7 +81,7 @@ def test_course_bulk_csv(requests_mock, tmp_path):
         assert result.exit_code == 0
         assert os.stat("output.csv").st_size != 0
 
-# pytest automatically can generate this isolated filesystem
+
 def test_course_bulk_setup(requests_mock, tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):      
@@ -147,26 +152,6 @@ def test_enrol_bulk_csv(requests_mock, tmp_path):
         assert result.exit_code == 0
         assert os.stat("output.csv").st_size != 0
 
-def test_import_bulk(requests_mock, tmp_path):
-    runner = CliRunner()
-    with runner.isolated_filesystem(temp_dir=tmp_path): 
-        requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
-        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
-
-        f = open('targetcourses.csv', 'w')
-        writer = csv.DictWriter(
-                f,
-                utils.import_bulk_input_csv_fieldnames()
-            )
-        writer.writeheader()
-        writer.writerows([{utils.CSV_COURSE_ID: 3},
-                            {utils.CSV_COURSE_ID: 1}])
-        f.close()
-
-        # import_bulk <SOURCE_COURSE_ID> <TARGET_COURSES_CSV>
-        result = runner.invoke(cli, ['import-bulk', '2','target_courses.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
-        assert result.exit_code == 0
-
 def test_import_bulk_csv(requests_mock, tmp_path):
     test_json = {'foo': 'bar'}
     runner = CliRunner()
@@ -176,6 +161,36 @@ def test_import_bulk_csv(requests_mock, tmp_path):
         result = runner.invoke(cli, ['import-bulk-csv', 'output.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
         assert result.exit_code == 0
         assert os.stat("output.csv").st_size != 0
+
+# Not sure what import_course returns 
+def test_import_bulk(requests_mock, tmp_path):
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path): 
+        requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
+
+        f = open('target_courses.csv', 'w')
+        writer = csv.DictWriter(
+                f,
+                utils.import_bulk_input_csv_fieldnames()
+            )
+        writer.writeheader()
+        writer.writerows([{utils.CSV_COURSE_ID: 3},
+                            {utils.CSV_COURSE_ID: 1}])
+        f.close()
+
+        print("INVOKING")
+        # import_bulk <SOURCE_COURSE_ID> <TARGET_COURSES_CSV>
+        result = runner.invoke(cli, ['import-bulk', '2','target_courses.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+        assert result.exit_code == 0
+
+def test_import_course(requests_mock, tmp_path):
+    runner = CliRunner()
+    requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+    # import-course <SOURCE_ID> <TARGET_ID>
+    result = runner.invoke(cli, ['import-course', '2', '3'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+    assert result.exit_code == 0
+    print(result.output)
 
 def test_role_info(requests_mock):
     test_json = {"foo": "bar"}
@@ -189,9 +204,47 @@ def test_role_info(requests_mock):
 
 def test_self_enrollment_methods(requests_mock):
     runner = CliRunner()
-    requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json={"foo": "bar"})
-
+    requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
+    # self-enrolment-methods <SOURCE_ID> <TARGET_ID>
     result = runner.invoke(cli, ['self-enrolment-methods', '2', '3'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
     print(result.output)
 
+def test_set_self_enrolment_method_key(requests_mock):
+    runner = CliRunner()
+    requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+    # set-self-enrolment-methods-key <ENROL_ID> <ENROL_KEY>
+    result = runner.invoke(cli, ['set-self-enrolment-method-key', '2', 'abc123'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+    assert result.exit_code == 0
+    print(result.output)
+
+
+def test_course_bulk_setup_error(requests_mock, tmp_path):
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):      
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
+        requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+
+        f = open('test.csv', 'w')
+        writer = csv.DictWriter(
+                f,
+                utils.course_bulk_input_csv_fieldnames()
+            )
+        writer.writeheader()
+        writer.writerows([{utils.CSV_INST_FNAME:'Tom', utils.CSV_INST_LNAME : 'Michaels', 
+                        utils.CSV_INST_EMAIL:'tommichaels@gmail.com', utils.CSV_INST_AUTH: 'manual', 
+                        utils.CSV_COURSE_NAME: 'Algebra', utils.CSV_COURSE_SHORTNAME:'a1', 
+                        utils.CSV_COURSE_CATEGORY:'MISC'},
+
+                        {utils.CSV_INST_FNAME:'Aliza', utils.CSV_INST_LNAME : 'Brown', 
+                        utils.CSV_INST_EMAIL:'invalid@gmail.com', utils.CSV_INST_AUTH: 'manual', 
+                        utils.CSV_COURSE_NAME: 'English', utils.CSV_COURSE_SHORTNAME:'e1', 
+                        utils.CSV_COURSE_CATEGORY:'MISC'}])
+        f.close()
+
+        result = runner.invoke(cli,
+                        ['course-bulk-setup', '2', 'test.csv', 'output.csv'],
+                        env={'MOODLE_URL': TEST_MOODLE_URL, "MOODLE_TOKEN": TEST_MOODLE_TOKEN})
+
+        assert result.exit_code == 0
+        assert os.stat("output.csv").st_size != 0
