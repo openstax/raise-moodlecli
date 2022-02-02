@@ -113,7 +113,6 @@ def test_enable_self_enrolment_method(requests_mock):
     runner = CliRunner()
     requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
     # enable-self-enrolment-method <ENROL_ID>
-    print("BEFORE INVOKATION")
     result = runner.invoke(cli, ['enable-self-enrolment-method', '3'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
 
@@ -121,6 +120,7 @@ def test_enrol_bulk(requests_mock, tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path): 
         requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
 
         f = open('students.csv', 'w')
         writer = csv.DictWriter(
@@ -135,9 +135,47 @@ def test_enrol_bulk(requests_mock, tmp_path):
         # enrol-bulk <COURSE_ID> <ROLE_SHORTNAME> <USERDATA_CSV>
         result = runner.invoke(cli, ['enrol-bulk', '3', 'student', 'students.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
         assert result.exit_code == 0
-
-
         print(result.output)
+
+def test_enrol_bulk_csv(requests_mock, tmp_path):
+    test_json = {'foo': 'bar'}
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path): 
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=test_json)
+        # enrol-bulk-csv  <OUTPUT_CSV>
+        result = runner.invoke(cli, ['enrol-bulk-csv', 'output.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+        assert result.exit_code == 0
+        assert os.stat("output.csv").st_size != 0
+
+def test_import_bulk(requests_mock, tmp_path):
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path): 
+        requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=post_matching_helper)
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=get_matching_helper)
+
+        f = open('targetcourses.csv', 'w')
+        writer = csv.DictWriter(
+                f,
+                utils.import_bulk_input_csv_fieldnames()
+            )
+        writer.writeheader()
+        writer.writerows([{utils.CSV_COURSE_ID: 3},
+                            {utils.CSV_COURSE_ID: 1}])
+        f.close()
+
+        # import_bulk <SOURCE_COURSE_ID> <TARGET_COURSES_CSV>
+        result = runner.invoke(cli, ['import-bulk', '2','target_courses.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+        assert result.exit_code == 0
+
+def test_import_bulk_csv(requests_mock, tmp_path):
+    test_json = {'foo': 'bar'}
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path): 
+        requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}', json=test_json)
+        # import-bulk-csv  <OUTPUT_CSV>
+        result = runner.invoke(cli, ['import-bulk-csv', 'output.csv'], env={'MOODLE_URL': TEST_MOODLE_URL, 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
+        assert result.exit_code == 0
+        assert os.stat("output.csv").st_size != 0
 
 def test_role_info(requests_mock):
     test_json = {"foo": "bar"}
