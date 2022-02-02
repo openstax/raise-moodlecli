@@ -17,6 +17,7 @@ MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
     "local_raisecli_set_self_enrolment_method_key"
 
 
+# This is a helper that formats things into moodle api readable form 
 def convert_moodle_params(data, prefix=""):
     """Given a dict / array, convert into a flat dict that Moodle expects
     where the key names define the structure.
@@ -75,7 +76,7 @@ class MoodleClient:
 
     def _create_params(self, service_function, data):
         params = {
-            "wsfunction": service_function,
+            "wsfunction": service_function, # the requested function name is embedded here 
             "moodlewsrestformat": "json",
             "wstoken": self.token
         }
@@ -93,6 +94,7 @@ class MoodleClient:
 
     def _get(self, service_function, data=None):
         """GET to service function with provided data as parameters"""
+        # print("SUFFIX: ", self._create_params(service_function, data))
         res = self.session.get(
             self.service_endpoint,
             params=self._create_params(service_function, data)
