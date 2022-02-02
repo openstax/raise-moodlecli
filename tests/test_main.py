@@ -13,8 +13,6 @@ MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
 
 def get_matching_helper(request, context):
-    print("GET_HELPER: ", request.qs)
-
     wsfunction = request.qs["wsfunction"][0]
 
     if wsfunction == moodle.MOODLE_FUNC_GET_ROLE_BY_SHORTNAME:
@@ -32,7 +30,6 @@ def get_matching_helper(request, context):
 
 
 def post_matching_helper(request, context):
-    print("POST_HELPER: ", parse.parse_qs(request.body))
 
     wsfunction = parse.parse_qs(request.body)['wsfunction'][0]
 
@@ -57,12 +54,10 @@ def test_copy_course(requests_mock):
 
     # copy-course <SOURCE_ID> <COURSE_NAME> <COURSE_SHORT_NAME>
     # <COURSE_CATEGORY_ID>
-    print("MOCK CREATED")
     result = runner.invoke(cli, ['copy-course', '3', 'Algebra3', 'ALG3', '1'],
                            env={'MOODLE_URL': TEST_MOODLE_URL,
                                 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
-    print(result.output)
 
 
 def test_course_bulk_csv(requests_mock, tmp_path):
@@ -173,7 +168,6 @@ def test_enrol_bulk(requests_mock, tmp_path):
                                env={'MOODLE_URL': TEST_MOODLE_URL,
                                     'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
         assert result.exit_code == 0
-        print(result.output)
 
 
 def test_enrol_bulk_csv(requests_mock, tmp_path):
@@ -242,7 +236,6 @@ def test_import_course(requests_mock, tmp_path):
                            env={'MOODLE_URL': TEST_MOODLE_URL,
                                 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
-    print(result.output)
 
 
 def test_role_info(requests_mock):
@@ -256,7 +249,6 @@ def test_role_info(requests_mock):
                                 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
     assert json.loads(result.output) == test_json
-    print(result.output)
 
 
 def test_self_enrollment_methods(requests_mock):
@@ -270,7 +262,6 @@ def test_self_enrollment_methods(requests_mock):
                            env={'MOODLE_URL': TEST_MOODLE_URL,
                                 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
-    print(result.output)
 
 
 def test_set_self_enrolment_method_key(requests_mock):
@@ -284,7 +275,6 @@ def test_set_self_enrolment_method_key(requests_mock):
                            env={'MOODLE_URL': TEST_MOODLE_URL,
                                 'MOODLE_TOKEN': TEST_MOODLE_TOKEN})
     assert result.exit_code == 0
-    print(result.output)
 
 
 def test_course_bulk_setup_error(requests_mock, tmp_path):

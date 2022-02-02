@@ -150,10 +150,8 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
                 student_role["id"]
             )
             updated_courses.append(updated_course)
-    except TypeError:
-        print("ERROR: invalid entry in %s", coursedata_csv)
-
-    # print("UPDATED COURSES: ", updated_courses)
+    except Exception as e:  # noqa: E722
+        print(e)
 
     writer = csv.DictWriter(
         courseoutput_csv,
