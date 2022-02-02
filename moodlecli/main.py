@@ -47,9 +47,7 @@ def copy_course(
     source_id, course_name, course_shortname, course_category_id
 ):
     """Copy course with SOURCE_ID to new course"""
-    print("MAIN - A")
     moodle = get_moodle_client()
-    print("MAIN - B")
     res = moodle.copy_course(
         source_id,
         course_name,
@@ -101,7 +99,6 @@ def role_info(shortname):
 @click.argument("enrol_id")
 def enable_self_enrolment_method(enrol_id):
     """Enable self enrolment method"""
-    print("IN MAIN")
     moodle = get_moodle_client()
     res = moodle.enable_self_enrolment_method(enrol_id)
     click.echo(json.dumps(res, indent=4))
@@ -112,7 +109,6 @@ def enable_self_enrolment_method(enrol_id):
 @click.argument("enrol_key")
 def set_self_enrolment_method_key(enrol_id, enrol_key):
     """Set self enrolment method key"""
-    print("IN MAIN")
     moodle = get_moodle_client()
     res = moodle.set_self_enrolment_method_key(enrol_id, enrol_key)
     click.echo(json.dumps(res, indent=4))
@@ -145,11 +141,8 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
     updated_courses = []
 
     course_reader = csv.DictReader(coursedata_csv)
-    print("CSV READ")
-
     try:
         for course in course_reader:
-            print("COURSE: ", course)
             updated_course = utils.setup_duplicate_course(  #try catch, where after this fails you just move on 
                 moodle,
                 base_course_id,
@@ -161,7 +154,7 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
     except: 
         print("ERROR: invalid entry in %s", coursedata_csv)
 
-    print("UPDATED COURSES: ", updated_courses)
+    # print("UPDATED COURSES: ", updated_courses)
 
     writer = csv.DictWriter(
         courseoutput_csv,

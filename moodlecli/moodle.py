@@ -94,7 +94,6 @@ class MoodleClient:
 
     def _get(self, service_function, data=None):
         """GET to service function with provided data as parameters"""
-        # print("SUFFIX: ", self._create_params(service_function, data))
         res = self.session.get(
             self.service_endpoint,
             params=self._create_params(service_function, data)

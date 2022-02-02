@@ -105,7 +105,6 @@ def setup_duplicate_course(
 ):
     """Setup a new course using a base and data from bulk CSV"""
     # Retrieve or create teacher account
-    print("A0")
     instructor_user_id = create_or_get_user(
         moodle_client,
         coursedata[CSV_INST_FNAME],
@@ -113,7 +112,6 @@ def setup_duplicate_course(
         coursedata[CSV_INST_EMAIL],
         coursedata[CSV_INST_AUTH]
     )
-    print("A: ", instructor_user_id)
 
     # Create a duplicate course using the base course
     new_course = moodle_client.copy_course(
@@ -122,10 +120,7 @@ def setup_duplicate_course(
         coursedata[CSV_COURSE_SHORTNAME],
         coursedata[CSV_COURSE_CATEGORY]
     )
-    print("B")
     new_course_id = new_course["id"]
-
-    
 
     # Enrol teacher user as a course instructor
     moodle_client.enrol_user(
@@ -133,7 +128,6 @@ def setup_duplicate_course(
         instructor_user_id,
         instructor_role_id
     )
-    print("C")
 
     # Get enrolment ID for course and student role
     enrolments = moodle_client.get_self_enrolment_methods(
@@ -146,7 +140,6 @@ def setup_duplicate_course(
             f"for course {new_course_id}"
         )
     student_enrolment_id = enrolments[0]["id"]
-    print("D")
 
     # Enable enrolment and set enrolment key
     moodle_client.enable_self_enrolment_method(student_enrolment_id)
@@ -156,14 +149,10 @@ def setup_duplicate_course(
         enrolment_key
     )
 
-    print("E")
-
     # Return updated course dict adding course ID and enrolment URL / key
     coursedata[CSV_COURSE_ID] = new_course_id
     coursedata[CSV_COURSE_ENROLMENT_URL] = \
         moodle_client.get_course_enrolment_url(new_course_id)
     coursedata[CSV_COURSE_ENROLMENT_KEY] = enrolment_key
-
-    print("COURSEDATA: ", coursedata)
 
     return coursedata
