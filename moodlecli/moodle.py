@@ -17,7 +17,6 @@ MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
     "local_raisecli_set_self_enrolment_method_key"
 
 
-# This is a helper that formats things into moodle api readable form 
 def convert_moodle_params(data, prefix=""):
     """Given a dict / array, convert into a flat dict that Moodle expects
     where the key names define the structure.

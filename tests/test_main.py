@@ -291,7 +291,7 @@ def test_course_bulk_setup_error(requests_mock, tmp_path):
     """This exercises an error that can be caused by invalid email inputs
     in the course-bulk-setup CLI command"""
     runner = CliRunner()
-    with runner.isolated_filesystem(temp_dir=tmp_path):    
+    with runner.isolated_filesystem(temp_dir=tmp_path):
         requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}',
                           json=get_matching_helper)
         requests_mock.post(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}',
