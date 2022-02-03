@@ -84,19 +84,19 @@ def test_course_bulk_setup(requests_mock, tmp_path):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_INST_FNAME: 'Tom',
-                            utils.CSV_INST_LNAME: 'Michaels',
-                            utils.CSV_INST_EMAIL: 'tommichaels@gmail.com',
-                            utils.CSV_INST_AUTH: 'manual',
-                            utils.CSV_COURSE_NAME: 'Algebra',
-                            utils.CSV_COURSE_SHORTNAME: 'a1',
-                            utils.CSV_COURSE_CATEGORY: 'MISC'},
-                            {utils.CSV_INST_FNAME: 'Christy',
-                            utils.CSV_INST_LNAME: 'Yolanda',
-                            utils.CSV_INST_EMAIL: 'christyyolanda@gmail.com',
-                            utils.CSV_INST_AUTH: 'manual',
-                            utils.CSV_COURSE_NAME: 'English',
-                            utils.CSV_COURSE_SHORTNAME: 'e1',
-                            utils.CSV_COURSE_CATEGORY: 'MISC'}])
+                               utils.CSV_INST_LNAME: 'Michaels',
+                               utils.CSV_INST_EMAIL: 'tommichaels@gmail.com',
+                               utils.CSV_INST_AUTH: 'manual',
+                               utils.CSV_COURSE_NAME: 'Algebra',
+                               utils.CSV_COURSE_SHORTNAME: 'a1',
+                               utils.CSV_COURSE_CATEGORY: 'MISC'},
+                              {utils.CSV_INST_FNAME: 'Christy',
+                               utils.CSV_INST_LNAME: 'Yolanda',
+                               utils.CSV_INST_EMAIL: 'christy@gmail.com',
+                               utils.CSV_INST_AUTH: 'manual',
+                               utils.CSV_COURSE_NAME: 'English',
+                               utils.CSV_COURSE_SHORTNAME: 'e1',
+                               utils.CSV_COURSE_CATEGORY: 'MISC'}])
 
         result = runner.invoke(cli, ['course-bulk-setup',
                                      '2', 'test.csv', 'output.csv'],
@@ -143,13 +143,13 @@ def test_enrol_bulk(requests_mock, tmp_path):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_USER_FNAME: 'Tom',
-                            utils.CSV_USER_LNAME: 'Michaels',
-                            utils.CSV_USER_EMAIL: 'tommichaels@gmail.com',
-                            utils.CSV_USER_AUTH: 'manual'},
-                            {utils.CSV_USER_FNAME: 'Phil',
-                            utils.CSV_USER_LNAME: 'Thomas',
-                            utils.CSV_USER_EMAIL: 'philthomas@gmail.com',
-                            utils.CSV_USER_AUTH: 'manual'}])
+                               utils.CSV_USER_LNAME: 'Michaels',
+                               utils.CSV_USER_EMAIL: 'tommichaels@gmail.com',
+                               utils.CSV_USER_AUTH: 'manual'},
+                              {utils.CSV_USER_FNAME: 'Phil',
+                               utils.CSV_USER_LNAME: 'Thomas',
+                               utils.CSV_USER_EMAIL: 'philthomas@gmail.com',
+                               utils.CSV_USER_AUTH: 'manual'}])
 
         result = runner.invoke(cli, ['enrol-bulk',
                                      '3', 'student', 'students.csv'],
@@ -198,7 +198,7 @@ def test_import_bulk(requests_mock, tmp_path):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_COURSE_ID: 3},
-                            {utils.CSV_COURSE_ID: 1}])
+                              {utils.CSV_COURSE_ID: 1}])
 
         result = runner.invoke(cli, ['import-bulk', '2', 'target_courses.csv'],
                                env=TEST_ENV)
@@ -266,19 +266,19 @@ def test_course_bulk_setup_error(requests_mock, tmp_path):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_INST_FNAME: 'Tom',
-                            utils.CSV_INST_LNAME: 'Michaels',
-                            utils.CSV_INST_EMAIL: 'tommichaels@gmail.com',
-                            utils.CSV_INST_AUTH: 'manual',
-                            utils.CSV_COURSE_NAME: 'Algebra',
-                            utils.CSV_COURSE_SHORTNAME: 'a1',
-                            utils.CSV_COURSE_CATEGORY: 'MISC'},
-                            {utils.CSV_INST_FNAME: 'Aliza',
-                            utils.CSV_INST_LNAME: 'Brown',
-                            utils.CSV_INST_EMAIL: 'invalid@gmail.com',
-                            utils.CSV_INST_AUTH: 'manual',
-                            utils.CSV_COURSE_NAME: 'English',
-                            utils.CSV_COURSE_SHORTNAME: 'e1',
-                            utils.CSV_COURSE_CATEGORY: 'MISC'}])
+                               utils.CSV_INST_LNAME: 'Michaels',
+                               utils.CSV_INST_EMAIL: 'tommichaels@gmail.com',
+                               utils.CSV_INST_AUTH: 'manual',
+                               utils.CSV_COURSE_NAME: 'Algebra',
+                               utils.CSV_COURSE_SHORTNAME: 'a1',
+                               utils.CSV_COURSE_CATEGORY: 'MISC'},
+                              {utils.CSV_INST_FNAME: 'Aliza',
+                               utils.CSV_INST_LNAME: 'Brown',
+                               utils.CSV_INST_EMAIL: 'invalid@gmail.com',
+                               utils.CSV_INST_AUTH: 'manual',
+                               utils.CSV_COURSE_NAME: 'English',
+                               utils.CSV_COURSE_SHORTNAME: 'e1',
+                               utils.CSV_COURSE_CATEGORY: 'MISC'}])
 
         result = runner.invoke(cli, ['course-bulk-setup',
                                      '2', 'test.csv', 'output.csv'],
