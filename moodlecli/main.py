@@ -47,7 +47,6 @@ def copy_course(
     source_id, course_name, course_shortname, course_category_id
 ):
     """Copy course with SOURCE_ID to new course"""
-
     moodle = get_moodle_client()
     res = moodle.copy_course(
         source_id,
@@ -142,22 +141,23 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
     updated_courses = []
 
     course_reader = csv.DictReader(coursedata_csv)
-    for course in course_reader:
-        updated_course = utils.setup_duplicate_course(
-            moodle,
-            base_course_id,
-            course,
-            teacher_role["id"],
-            student_role["id"]
+    try:
+        for course in course_reader:
+            updated_course = utils.setup_duplicate_course(
+                moodle,
+                base_course_id,
+                course,
+                teacher_role["id"],
+                student_role["id"]
+            )
+            updated_courses.append(updated_course)
+    finally:
+        writer = csv.DictWriter(
+            courseoutput_csv,
+            utils.course_bulk_output_csv_fieldnames()
         )
-        updated_courses.append(updated_course)
-
-    writer = csv.DictWriter(
-        courseoutput_csv,
-        utils.course_bulk_output_csv_fieldnames()
-    )
-    writer.writeheader()
-    writer.writerows(updated_courses)
+        writer.writeheader()
+        writer.writerows(updated_courses)
 
 
 @cli.command()
