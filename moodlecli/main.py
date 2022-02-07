@@ -144,21 +144,20 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
     try:
         for course in course_reader:
             updated_course = utils.setup_duplicate_course(
+                moodle,
                 base_course_id,
                 course,
                 teacher_role["id"],
                 student_role["id"]
             )
             updated_courses.append(updated_course)
-    except Exception as e:  # noqa: E722
-        print(e)
-
-    writer = csv.DictWriter(
-        courseoutput_csv,
-        utils.course_bulk_output_csv_fieldnames()
-    )
-    writer.writeheader()
-    writer.writerows(updated_courses)
+    finally:
+        writer = csv.DictWriter(
+            courseoutput_csv,
+            utils.course_bulk_output_csv_fieldnames()
+        )
+        writer.writeheader()
+        writer.writerows(updated_courses)
 
 
 @cli.command()
