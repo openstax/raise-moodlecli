@@ -6,6 +6,8 @@ import json
 import csv
 from click.testing import CliRunner
 from moodlecli.main import cli
+import boto3
+import botocore.stub
 
 TEST_MOODLE_URL = "http://test-things"
 TEST_MOODLE_TOKEN = "e4586db9345084f15abc7326b84dde21"
@@ -44,6 +46,8 @@ def moodle_requests_mock(requests_mock):
             return {'id': 3}
         elif wsfunction == moodle.MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY:
             return {'id': 3}
+        elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
+            return {'courseid': 21, 'users': {'id': 3}}
         else:
             return []
 
@@ -232,6 +236,30 @@ def test_set_self_enrolment_method_key(moodle_requests_mock):
 
     result = runner.invoke(cli, ['set-self-enrolment-method-key',
                                  '2', 'abc123'],
+                           env=TEST_ENV)
+    assert result.exit_code == 0
+
+
+def test_export_grades(moodle_requests_mock, tmp_path, mocker):
+    runner = CliRunner()
+
+    s3_client = boto3.client('s3')
+    stubber = botocore.stub.Stubber(s3_client)
+
+    key = '/path/key.txt'
+    bucket_name = 'test-bucket'
+    data = {'courseid': 21, 'users': {'id': 3}}
+
+    expected_params = {'Bucket': bucket_name,
+                       'Body': json.dumps(data).encode('utf-8'),
+                       'Key': key}
+    stubber.add_response('put_object', {}, expected_params)
+    stubber.add_response('create_bucket', {}, expected_params)
+    stubber.activate()
+    mocker.patch("boto3.client", lambda service: s3_client)
+
+    result = runner.invoke(cli, ['export-grades',
+                                 '21', bucket_name, key],
                            env=TEST_ENV)
     assert result.exit_code == 0
 

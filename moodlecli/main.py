@@ -5,6 +5,7 @@ import click
 import requests
 from .moodle import MoodleClient
 from . import utils
+from . import aws
 
 
 CONTEXT_MOODLE_CLIENT_KEY = "MOODLE_CLIENT"
@@ -217,3 +218,18 @@ def import_bulk(source_course_id, targetcourses_csv):
             source_course_id,
             target_course[utils.CSV_COURSE_ID]
         )
+
+
+@cli.command()
+@click.argument('source_course_id')
+@click.argument('bucket_name')
+@click.argument('key')
+def export_grades(source_course_id, bucket_name, key):
+    """Output to CSV the grades for a given course"""
+    moodle = get_moodle_client()
+
+    grades = moodle.get_course_grades(
+        source_course_id,
+    )
+    print(grades)
+    aws.send_moodle_sudent_grades_to_bucket(grades, bucket_name, key)
