@@ -231,5 +231,5 @@ def export_grades(source_course_id, bucket_name, key):
     grades = moodle.get_course_grades(
         source_course_id,
     )
-    print(grades)
+
     aws.send_moodle_sudent_grades_to_bucket(grades, bucket_name, key)

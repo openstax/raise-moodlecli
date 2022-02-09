@@ -261,6 +261,7 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
     result = runner.invoke(cli, ['export-grades',
                                  '21', bucket_name, key],
                            env=TEST_ENV)
+
     assert result.exit_code == 0
 
 
