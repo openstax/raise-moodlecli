@@ -29,6 +29,8 @@ def moodle_requests_mock(requests_mock):
                 return {'users': [{'id': 2}]}
         elif wsfunction == moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS:
             return [{'id': 2}]
+        elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
+            return {'courseid': 21, 'users': {'id': 3}}
         else:
             return []
 
@@ -46,8 +48,6 @@ def moodle_requests_mock(requests_mock):
             return {'id': 3}
         elif wsfunction == moodle.MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY:
             return {'id': 3}
-        elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
-            return {'courseid': 21, 'users': {'id': 3}}
         else:
             return []
 

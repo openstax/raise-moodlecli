@@ -316,7 +316,7 @@ def test_check_for_moodle_error(mocker):
 
 def test_get_course_grades(mocker):
     session_mock = mocker.Mock()
-    session_mock.post.return_value.json.return_value = [{}]
+    session_mock.get.return_value.json.return_value = [{}]
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )

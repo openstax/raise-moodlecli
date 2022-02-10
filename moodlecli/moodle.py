@@ -205,7 +205,7 @@ class MoodleClient:
         data = {
             'courseid': course_id
         }
-        return self._post(MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS, data)
+        return self._get(MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS, data)
 
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"
