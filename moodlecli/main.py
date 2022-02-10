@@ -232,4 +232,4 @@ def export_grades(source_course_id, bucket_name, key):
         source_course_id,
     )
 
-    aws.send_moodle_sudent_grades_to_bucket(grades, bucket_name, key)
+    aws.put_json_data(grades, bucket_name, key)

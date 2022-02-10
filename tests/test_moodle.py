@@ -312,3 +312,13 @@ def test_check_for_moodle_error(mocker):
     # Confirm we handle valid array responses without errors
     result_mock.json.return_value = []
     moodle.check_for_moodle_error(result_mock)
+
+
+def test_get_course_grades(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    grades_json = client.get_course_grades(2)
+    assert grades_json == [{}]

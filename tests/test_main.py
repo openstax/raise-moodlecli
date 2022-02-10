@@ -254,7 +254,6 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
                        'Body': json.dumps(data).encode('utf-8'),
                        'Key': key}
     stubber.add_response('put_object', {}, expected_params)
-    stubber.add_response('create_bucket', {}, expected_params)
     stubber.activate()
     mocker.patch("boto3.client", lambda service: s3_client)
 
@@ -263,6 +262,7 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
                            env=TEST_ENV)
 
     assert result.exit_code == 0
+    assert stubber.assert_no_pending_responses() is None
 
 
 def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
