@@ -326,11 +326,10 @@ def test_get_course_grades(mocker):
         f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
         params={
             "courseid": 2,
-            "wsfunction": moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS ,
+            "wsfunction": moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
         }
     )
 
     assert grades_json == [{}]
-    
