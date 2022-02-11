@@ -262,7 +262,7 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
                            env=TEST_ENV)
 
     assert result.exit_code == 0
-    assert stubber.assert_no_pending_responses() is None
+    stubber.assert_no_pending_responses()
 
 
 def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):

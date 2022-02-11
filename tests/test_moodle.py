@@ -321,4 +321,16 @@ def test_get_course_grades(mocker):
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
     grades_json = client.get_course_grades(2)
+
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "courseid": 2,
+            "wsfunction": moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS ,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
     assert grades_json == [{}]
+    
