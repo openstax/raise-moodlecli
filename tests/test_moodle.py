@@ -333,3 +333,24 @@ def test_get_course_grades(mocker):
     )
 
     assert grades_json == [{}]
+
+
+def test_get_users_by_course(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    users_json = client.get_users_by_course(2)
+
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "courseid": 2,
+            "wsfunction": moodle.MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+    assert users_json == [{}]

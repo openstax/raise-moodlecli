@@ -17,6 +17,8 @@ MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
     "local_raisecli_set_self_enrolment_method_key"
 MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS = \
     "gradereport_user_get_grade_items"
+MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = \
+    "core_enrol_get_enrolled_users"
 
 
 def convert_moodle_params(data, prefix=""):
@@ -206,6 +208,12 @@ class MoodleClient:
             'courseid': course_id
         }
         return self._get(MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS, data)
+
+    def get_users_by_course(self, course_id):
+        data = {
+            "courseid": course_id
+        }
+        return self._get(MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS, data)
 
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"
