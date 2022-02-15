@@ -225,7 +225,7 @@ def import_bulk(source_course_id, targetcourses_csv):
 @click.argument('bucket_name')
 @click.argument('key')
 def export_grades(source_course_id, bucket_name, key):
-    """Output to CSV the grades for a given course"""
+    """Output to JSON the grades for a given course into a s3 bucket"""
     moodle = get_moodle_client()
 
     grades = moodle.get_course_grades(
@@ -233,3 +233,19 @@ def export_grades(source_course_id, bucket_name, key):
     )
 
     aws.put_json_data(grades, bucket_name, key)
+
+
+@cli.command()
+@click.argument('source_course_id')
+@click.argument('bucket_name')
+@click.argument('key')
+def export_users_by_course(source_course_id, bucket_name, key):
+    """Output to JSON the users (and their info) for a given course to s3
+    bucket"""
+    moodle = get_moodle_client()
+
+    users = moodle.get_users_by_course(
+        source_course_id
+    )
+
+    aws.put_json_data(users, bucket_name, key)

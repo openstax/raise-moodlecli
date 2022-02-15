@@ -29,6 +29,8 @@ def moodle_requests_mock(requests_mock):
                 return {'users': [{'id': 2}]}
         elif wsfunction == moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS:
             return [{'id': 2}]
+        elif wsfunction == moodle.MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS:
+            return {'courseid': 21, 'users': {'id': 3}}
         elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
             return {'courseid': 21, 'users': {'id': 3}}
         else:
@@ -258,6 +260,31 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
     mocker.patch("boto3.client", lambda service: s3_client)
 
     result = runner.invoke(cli, ['export-grades',
+                                 '21', bucket_name, key],
+                           env=TEST_ENV)
+
+    assert result.exit_code == 0
+    stubber.assert_no_pending_responses()
+
+
+def test_export_users_by_course(moodle_requests_mock, tmp_path, mocker):
+    runner = CliRunner()
+
+    s3_client = boto3.client('s3')
+    stubber = botocore.stub.Stubber(s3_client)
+
+    key = '/path/key.txt'
+    bucket_name = 'test-bucket'
+    data = {'courseid': 21, 'users': {'id': 3}}
+
+    expected_params = {'Bucket': bucket_name,
+                       'Body': json.dumps(data).encode('utf-8'),
+                       'Key': key}
+    stubber.add_response('put_object', {}, expected_params)
+    stubber.activate()
+    mocker.patch("boto3.client", lambda service: s3_client)
+
+    result = runner.invoke(cli, ['export-users-by-course',
                                  '21', bucket_name, key],
                            env=TEST_ENV)
 
