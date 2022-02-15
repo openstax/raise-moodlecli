@@ -1,5 +1,6 @@
 import string
 import random
+from prettytable import PrettyTable
 
 CSV_INST_FNAME = 'instructor_firstname'
 CSV_INST_LNAME = 'instructor_lastname'
@@ -97,6 +98,20 @@ def create_or_get_user(moodle_client, firstname, lastname, email, auth):
         )
         user_id = new_user["id"]
     return user_id
+
+
+def stylize_courses(courses_json):
+    t = PrettyTable()
+    fields = ['fullname', 'id', 'visible', 'categoryid']
+    t.field_names = fields
+    for course in courses_json:
+        row = []
+        for col in fields:
+            row.append(course[col])
+        t.add_row(row)
+
+    t.align["fullname"] = "l"
+    return t.get_string(sortby='id')
 
 
 def setup_duplicate_course(
