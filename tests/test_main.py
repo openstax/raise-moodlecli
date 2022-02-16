@@ -116,7 +116,10 @@ def test_course_bulk_setup(moodle_requests_mock, tmp_path):
 
 
 def test_courses(requests_mock):
-    test_json = {"foo": "bar"}
+    test_json = [{'fullname': 'foo',
+                  'id': '1',
+                  'visible': '1',
+                  'categoryid': '1'}]
     runner = CliRunner()
     requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
                       json=test_json)
@@ -124,7 +127,7 @@ def test_courses(requests_mock):
     result = runner.invoke(cli, ['courses'],
                            env=TEST_ENV)
     assert result.exit_code == 0
-    assert json.loads(result.output) == test_json
+    assert result.output == utils.stylize_courses(test_json) + '\n'
 
 
 def test_enable_self_enrolment_method(moodle_requests_mock):

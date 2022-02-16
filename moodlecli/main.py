@@ -74,7 +74,8 @@ def courses():
     """Get list of courses"""
     moodle = get_moodle_client()
     res = moodle.get_courses()
-    click.echo(json.dumps(res, indent=4))
+    table = utils.stylize_courses(res)
+    click.echo(table)
 
 
 @cli.command()
