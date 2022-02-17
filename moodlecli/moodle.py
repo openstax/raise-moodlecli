@@ -203,7 +203,7 @@ class MoodleClient:
         }
         return self._post(MOODLE_FUNC_ENROL_USER, data)
 
-    def get_course_grades(self, course_id):
+    def get_grades_by_course(self, course_id):
         data = {
             'courseid': course_id
         }

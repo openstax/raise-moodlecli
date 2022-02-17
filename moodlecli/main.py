@@ -229,7 +229,7 @@ def export_grades(source_course_id, bucket_name, key):
     """Output to JSON the grades for a given course into a s3 bucket"""
     moodle = get_moodle_client()
 
-    grades = moodle.get_course_grades(
+    grades = moodle.get_grades_by_course(
         source_course_id,
     )
 
@@ -240,7 +240,7 @@ def export_grades(source_course_id, bucket_name, key):
 @click.argument('source_course_id')
 @click.argument('bucket_name')
 @click.argument('key')
-def export_users_by_course(source_course_id, bucket_name, key):
+def export_users(source_course_id, bucket_name, key):
     """Output to JSON the users (and their info) for a given course to s3
     bucket"""
     moodle = get_moodle_client()
@@ -250,3 +250,36 @@ def export_users_by_course(source_course_id, bucket_name, key):
     )
 
     aws.put_json_data(users, bucket_name, key)
+
+
+@cli.command()
+@click.argument('input_csv', type=click.File(mode='r'))
+@click.argument('bucket_name')
+@click.argument('directory')
+@click.argument('data_type',
+                type=click.Choice(['grades', 'users'], case_sensitive=False))
+def export_bulk(input_csv, bucket_name, directory, data_type):
+    """Outputs either grade or user data to a specified s3 bucket"""
+
+    moodle = get_moodle_client()
+    course_ids = csv.DictReader(input_csv)
+    for row in course_ids:
+        id = row[utils.CSV_COURSE_ID]
+        key = f'{directory}/{id}.json'
+        if data_type == 'grades':
+            grade_data = moodle.get_grades_by_course(id)
+            aws.put_json_data(grade_data, bucket_name, key)
+        elif data_type == 'users':
+            user_data = moodle.get_users_by_course(id)
+            aws.put_json_data(user_data, bucket_name, key)
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
+def export_bulk_csv(output_csv):
+    """Output an empty CSV template for course-bulk-setup"""
+    writer = csv.DictWriter(
+        output_csv,
+        utils.bulk_export_csv_course_ids()
+    )
+    writer.writeheader()
