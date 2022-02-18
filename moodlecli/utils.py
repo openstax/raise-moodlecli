@@ -82,6 +82,13 @@ def import_bulk_input_csv_fieldnames():
     ]
 
 
+def bulk_export_csv_course_ids():
+    """Return array of fieldnames used in output CSV for bulk export"""
+    return{
+        CSV_COURSE_ID
+    }
+
+
 def create_or_get_user(moodle_client, firstname, lastname, email, auth):
     """Create a user account if it doesn't exist and return user ID"""
     existing_user = moodle_client.get_user_by_email(

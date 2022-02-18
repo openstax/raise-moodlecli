@@ -21,6 +21,11 @@ def moodle_requests_mock(requests_mock):
 
         if wsfunction == moodle.MOODLE_FUNC_GET_ROLE_BY_SHORTNAME:
             return {'id': 2}
+        if wsfunction == moodle.MOODLE_FUNC_GET_COURSES:
+            return [{'fullname': 'foo',
+                     'id': '1',
+                     'visible': '1',
+                     'categoryid': '1'}]
         elif wsfunction == moodle.MOODLE_FUNC_GET_USERS:
             # Used to exercise error in course_bulk_setup
             if request.qs["criteria[0][value]"][0] == 'invalid@gmail.com':
@@ -270,7 +275,7 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
     stubber.assert_no_pending_responses()
 
 
-def test_export_users_by_course(moodle_requests_mock, tmp_path, mocker):
+def test_export_users(moodle_requests_mock, tmp_path, mocker):
     runner = CliRunner()
 
     s3_client = boto3.client('s3')
@@ -287,12 +292,68 @@ def test_export_users_by_course(moodle_requests_mock, tmp_path, mocker):
     stubber.activate()
     mocker.patch("boto3.client", lambda service: s3_client)
 
-    result = runner.invoke(cli, ['export-users-by-course',
+    result = runner.invoke(cli, ['export-users',
                                  '21', bucket_name, key],
                            env=TEST_ENV)
 
     assert result.exit_code == 0
     stubber.assert_no_pending_responses()
+
+
+def test_export_bulk_csv(requests_mock, tmp_path):
+    test_json = {'foo': 'bar'}
+    runner = CliRunner()
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
+                          json=test_json)
+
+        result = runner.invoke(cli, ['export-bulk-csv', 'output.csv'],
+                               env=TEST_ENV)
+        assert result.exit_code == 0
+        assert os.stat("output.csv").st_size != 0
+
+
+def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
+    runner = CliRunner()
+
+    s3_client = boto3.client('s3')
+    stubber = botocore.stub.Stubber(s3_client)
+
+    directory = 'path'
+    bucket_name = 'test-bucket'
+    data = {'courseid': 21, 'users': {'id': 3}}
+
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+
+        with open('test.csv', 'w') as f:
+            writer = csv.DictWriter(
+                    f,
+                    utils.bulk_export_csv_course_ids()
+                )
+            writer.writeheader()
+            writer.writerows([{utils.CSV_COURSE_ID: 1}])
+
+        expected_params = {'Bucket': bucket_name,
+                           'Body': json.dumps(data).encode('utf-8'),
+                           'Key': f'{directory}/1.json'}
+        stubber.add_response('put_object', {}, expected_params)
+        stubber.activate()
+        mocker.patch("boto3.client", lambda service: s3_client)
+
+        result_grades = runner.invoke(cli, ['export-bulk',
+                                            'test.csv', bucket_name,
+                                            directory, 'grades'],
+                                      env=TEST_ENV)
+        assert result_grades.exit_code == 0
+        stubber.assert_no_pending_responses()
+
+        stubber.add_response('put_object', {}, expected_params)
+        stubber.activate()
+        result_users = runner.invoke(cli, ['export-bulk', 'test.csv',
+                                           bucket_name, directory, 'users'],
+                                     env=TEST_ENV)
+        assert result_users.exit_code == 0
+        stubber.assert_no_pending_responses()
 
 
 def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):

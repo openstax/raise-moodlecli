@@ -320,7 +320,7 @@ def test_get_course_grades(mocker):
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
-    grades_json = client.get_course_grades(2)
+    grades_json = client.get_grades_by_course(2)
 
     session_mock.get.assert_called_once_with(
         f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
