@@ -134,7 +134,6 @@ def setup_duplicate_course(
         coursedata[CSV_INST_EMAIL],
         coursedata[CSV_INST_AUTH]
     )
-
     # Create a duplicate course using the base course
     new_course = moodle_client.copy_course(
         base_course_id,
