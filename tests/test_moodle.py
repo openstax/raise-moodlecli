@@ -36,7 +36,8 @@ def test_copy_course(mocker):
         1,
         "Long name",
         "Short name",
-        2
+        2,
+        True
     )
     session_mock.post.assert_called_once_with(
         f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
@@ -45,6 +46,8 @@ def test_copy_course(mocker):
             "fullname": "Long name",
             "shortname": "Short name",
             "categoryid": 2,
+            "options[0][name]": "users",
+            "options[0][value]": "1",
             "wsfunction": moodle.MOODLE_FUNC_DUPLICATE_COURSE,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN

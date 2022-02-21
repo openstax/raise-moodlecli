@@ -104,13 +104,16 @@ class MoodleClient:
         return check_for_moodle_error(res)
 
     def copy_course(
-        self, source_id, course_name, course_shortname, course_category_id
+        self, source_id, course_name, course_shortname, course_category_id,
+        include_users=False
     ):
         data = {
             "courseid": source_id,
             "fullname": course_name,
             "shortname": course_shortname,
-            "categoryid": course_category_id
+            "categoryid": course_category_id,
+            "options": [{"name": "users",
+                        "value": ("1" if include_users else "0")}]
         }
         return self._post(
             MOODLE_FUNC_DUPLICATE_COURSE,

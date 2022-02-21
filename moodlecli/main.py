@@ -44,8 +44,11 @@ def cli(ctx):
 @click.argument("course_name")
 @click.argument("course_shortname")
 @click.argument("course_category_id")
+@click.option('-u', '--include-users', is_flag=True,
+              help="Copy enrolled users from base class")
 def copy_course(
-    source_id, course_name, course_shortname, course_category_id
+                source_id, course_name, course_shortname, course_category_id,
+                include_users
 ):
     """Copy course with SOURCE_ID to new course"""
     moodle = get_moodle_client()
@@ -53,7 +56,8 @@ def copy_course(
         source_id,
         course_name,
         course_shortname,
-        course_category_id
+        course_category_id,
+        include_users
     )
     click.echo(json.dumps(res, indent=4))
 
