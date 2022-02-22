@@ -1,6 +1,7 @@
 import pytest
 from moodlecli import moodle
 from moodlecli import utils
+import random
 
 TEST_MOODLE_URL = "http://dagobah"
 TEST_MOODLE_TOKEN = "1234"
@@ -260,6 +261,7 @@ def test_enrol_user(mocker):
 
 
 def test_setup_duplicate_course(mocker):
+    random.seed(1)
     moodle_mock = mocker.Mock()
     course_data = {
         utils.CSV_INST_FNAME: "fname",
@@ -301,6 +303,7 @@ def test_setup_duplicate_course(mocker):
         "enrolid"
     assert res[utils.CSV_COURSE_ID] == "courseid"
     assert res[utils.CSV_COURSE_ENROLMENT_URL] == "enrolmenturl"
+    assert res[utils.CSV_COURSE_ENROLMENT_KEY] == "suave-spider-1033"
 
 
 def test_check_for_moodle_error(mocker):
