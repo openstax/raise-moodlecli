@@ -42,6 +42,22 @@ def generate_password(length=12):
     return ''.join(password)
 
 
+def generate_friendly_password():
+    adjectives = ["cold", "silly", "suave", "pensive", "lying", "pious",
+                  "sweaty", "bald", "lovely", "affirming"]
+    animals = ["panda", "cow", "penguin", "flamingo", "worm", "crab",
+               "shark", "hippo", "locust", "spider"]
+
+    password = []
+    password.append(random.choice(adjectives))
+    password.append("-")
+    password.append(random.choice(animals))
+    password.append("-")
+    password.append(f'{random.randrange(0, 10**4):04}')
+
+    return ''.join(password)
+
+
 def course_bulk_input_csv_fieldnames():
     """Return array of fieldnames used / expected in input CSV for course
     bulk setup"""
@@ -164,7 +180,7 @@ def setup_duplicate_course(
 
     # Enable enrolment and set enrolment key
     moodle_client.enable_self_enrolment_method(student_enrolment_id)
-    enrolment_key = generate_password()
+    enrolment_key = generate_friendly_password()
     moodle_client.set_self_enrolment_method_key(
         student_enrolment_id,
         enrolment_key
