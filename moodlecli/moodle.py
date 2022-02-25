@@ -179,11 +179,14 @@ class MoodleClient:
             return None
 
     def create_user(self, firstname, lastname, email, auth):
+        # Moodle requires lower case in usernames and for consistency we'll
+        # go ahead and use the same value for email
+        lowercase_email = email.lower()
         user_data = {
-            "username": email,
+            "username": lowercase_email,
             "firstname": firstname,
             "lastname": lastname,
-            "email": email,
+            "email": lowercase_email,
             "auth": auth
         }
         # We set a password value if auth is manual so Moodle doesn't generate

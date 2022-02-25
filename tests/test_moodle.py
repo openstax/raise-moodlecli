@@ -231,6 +231,28 @@ def test_create_user(mocker):
     assert "users[0][password]" in session_mock.post.call_args[0][1]
 
 
+def test_create_user_capital_email(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.create_user("fname", "lname", "EMAIL", "oauth2")
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "users[0][username]": "email",
+            "users[0][email]": "email",
+            "users[0][firstname]": "fname",
+            "users[0][lastname]": "lname",
+            "users[0][auth]": "oauth2",
+            "wsfunction": moodle.MOODLE_FUNC_CREATE_USERS,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
 def test_get_course_enrolment_url(mocker):
     session_mock = mocker.Mock()
     client = moodle.MoodleClient(
