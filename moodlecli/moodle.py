@@ -19,6 +19,8 @@ MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS = \
     "gradereport_user_get_grade_items"
 MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = \
     "core_enrol_get_enrolled_users"
+MOODLE_FUNC_LOCAL_DIRECT_EVENT_HANDLER = \
+    "local_direct_event_handler"
 
 
 def convert_moodle_params(data, prefix=""):
@@ -223,3 +225,6 @@ class MoodleClient:
 
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"
+
+    def log_event_manually(self, event):
+        return self._post(MOODLE_FUNC_LOCAL_DIRECT_EVENT_HANDLER, event)

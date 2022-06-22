@@ -287,3 +287,12 @@ def export_bulk_csv(output_csv):
         utils.bulk_export_csv_course_ids()
     )
     writer.writeheader()
+
+
+@cli.command()
+@click.argument('event_id')
+def log_event_manually(event_id):
+    event_desc = f"This is event {event_id}"
+    event = {'event_description': event_desc, 'event_id': event_id}
+    moodle = get_moodle_client()
+    moodle.log_event_manually(event)
