@@ -223,8 +223,12 @@ class MoodleClient:
         }
         return self._get(MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS, data)
 
+    def log_event_manually(self, event_id, event_desc):
+        data = {
+            "event_id": event_id,
+            "event_description": event_desc
+        }
+        return self._get(MOODLE_FUNC_LOCAL_DIRECT_EVENT_HANDLER, data)
+
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"
-
-    def log_event_manually(self, event):
-        return self._post(MOODLE_FUNC_LOCAL_DIRECT_EVENT_HANDLER, event)
