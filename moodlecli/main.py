@@ -290,8 +290,7 @@ def export_bulk_csv(output_csv):
 
 
 @cli.command()
-@click.argument('event_id')
-def log_event_manually(event_id):
-    event_desc = f"This is event {event_id}"
+@click.argument('content_id')
+def log_event_manually(content_id):
     moodle = get_moodle_client()
-    print(moodle.log_event_manually(event_id, event_desc))
+    print(moodle.log_event_manually(content_id))
