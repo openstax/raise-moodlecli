@@ -290,7 +290,14 @@ def export_bulk_csv(output_csv):
 
 
 @cli.command()
-@click.argument('content_id')
-def log_event_manually(content_id):
+@click.argument('event_pipeline',
+                type=click.Choice(['direct', 'moodle'], case_sensitive=False))
+def log_event_manually(event_pipeline):
+    data = {
+        "contentId": "test_id"
+    }
     moodle = get_moodle_client()
-    print(moodle.log_event_manually(content_id))
+    if event_pipeline == "direct":
+        moodle.log_event_manually_direct(data)
+    elif event_pipeline == "moodle":
+        moodle.log_event_manually_moodle(data)
