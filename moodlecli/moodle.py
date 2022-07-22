@@ -21,6 +21,8 @@ MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = \
     "core_enrol_get_enrolled_users"
 MOODLE_FUNC_LOCAL_DIRECT_CONTENT_LOADED_EVENT_HANDLER = \
     "local_fe_events_direct_content_loaded_handler"
+MOODLE_FUNC_LOCAL_MOODLE_CONTENT_LOADED_EVENT_HANDLER = \
+    "local_fe_events_moodle_content_loaded_handler"
 
 
 def convert_moodle_params(data, prefix=""):
@@ -232,7 +234,12 @@ class MoodleClient:
         )
 
     def log_event_manually_moodle(self, content_id):
-        return
+        data = {
+            "contentId": content_id
+        }
+        return self._post(
+            MOODLE_FUNC_LOCAL_MOODLE_CONTENT_LOADED_EVENT_HANDLER, data
+        )
 
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"

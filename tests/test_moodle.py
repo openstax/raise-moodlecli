@@ -382,3 +382,41 @@ def test_get_users_by_course(mocker):
     )
 
     assert users_json == [{}]
+
+
+def test_log_event_manually_direct(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.log_event_manually_direct(13)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "contentId": 13,
+            "wsfunction":
+                moodle.MOODLE_FUNC_LOCAL_DIRECT_CONTENT_LOADED_EVENT_HANDLER,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
+def test_log_event_manually_moodle(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.log_event_manually_moodle(13)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "contentId": 13,
+            "wsfunction":
+                moodle.MOODLE_FUNC_LOCAL_MOODLE_CONTENT_LOADED_EVENT_HANDLER,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
