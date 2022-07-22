@@ -24,6 +24,7 @@ MOODLE_FUNC_LOCAL_DIRECT_CONTENT_LOADED_EVENT_HANDLER = \
 MOODLE_FUNC_LOCAL_MOODLE_CONTENT_LOADED_EVENT_HANDLER = \
     "local_fe_events_moodle_content_loaded_handler"
 
+
 def convert_moodle_params(data, prefix=""):
     """Given a dict / array, convert into a flat dict that Moodle expects
     where the key names define the structure.
