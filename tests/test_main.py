@@ -286,7 +286,8 @@ def test_export_users(moodle_requests_mock, tmp_path, mocker):
 
     key = '/path/key.txt'
     bucket_name = 'test-bucket'
-    data = [{'id': 2}, {'id': 3}]
+    data = [{'id': 2, 'user_uuid': 'abcd'},
+            {'id': 3, 'user_uuid': 'defg'}]
 
     expected_params = {'Bucket': bucket_name,
                        'Body': json.dumps(data).encode('utf-8'),

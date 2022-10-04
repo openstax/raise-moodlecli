@@ -249,11 +249,13 @@ def export_users(source_course_id, bucket_name, key):
     bucket"""
     moodle = get_moodle_client()
 
-    users = moodle.get_users_by_course(
+    user_data = moodle.get_users_by_course(
         source_course_id
     )
+    uuid_data = moodle.get_user_uuids([])
+    user_data = utils.inject_uuids(uuid_data, user_data)
 
-    aws.put_json_data(users, bucket_name, key)
+    aws.put_json_data(user_data, bucket_name, key)
 
 
 @cli.command()
