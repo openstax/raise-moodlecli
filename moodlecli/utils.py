@@ -101,7 +101,7 @@ def import_bulk_input_csv_fieldnames():
 
 def bulk_export_csv_course_ids():
     """Return array of fieldnames used in output CSV for bulk export"""
-    return{
+    return {
         CSV_COURSE_ID
     }
 
