@@ -1,5 +1,6 @@
 import string
 import random
+from uuid import uuid4
 from prettytable import PrettyTable
 
 CSV_INST_FNAME = 'instructor_firstname'
@@ -193,3 +194,19 @@ def setup_duplicate_course(
     coursedata[CSV_COURSE_ENROLMENT_KEY] = enrolment_key
 
     return coursedata
+
+
+def inject_uuids(uuid_data, user_data):
+    uuid_map = {}
+    # Make a hash of all user_ids to uuids
+    for item in uuid_data:
+        uuid_map[int(item['user_id'])] = item['user_uuid']
+
+    # Add uuids to user data
+    for user in user_data:
+        user_id = int(user['id'])
+        if user_id in uuid_map.keys():
+            user['user_uuid'] = uuid_map[user_id]
+        else:
+            user['user_uuid'] = uuid4()
+    return user_data

@@ -275,6 +275,8 @@ def export_bulk(input_csv, bucket_name, directory, data_type):
             aws.put_json_data(grade_data, bucket_name, key)
         elif data_type == 'users':
             user_data = moodle.get_users_by_course(id)
+            uuid_data = moodle.get_user_uuids([])
+            user_data = utils.inject_uuids(uuid_data, user_data)
             aws.put_json_data(user_data, bucket_name, key)
 
 
