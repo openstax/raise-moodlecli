@@ -1,6 +1,6 @@
 import string
 import random
-from uuid import uuid4
+from uuid import UUID
 from prettytable import PrettyTable
 
 CSV_INST_FNAME = 'instructor_firstname'
@@ -208,5 +208,5 @@ def inject_uuids(uuid_data, user_data):
         if user_id in uuid_map.keys():
             user['user_uuid'] = uuid_map[user_id]
         else:
-            user['user_uuid'] = uuid4()
+            user['user_uuid'] = str(UUID(int=random.getrandbits(128)))
     return user_data

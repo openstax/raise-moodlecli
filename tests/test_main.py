@@ -4,6 +4,8 @@ import pytest
 import os
 import json
 import csv
+import random
+from uuid import UUID
 from click.testing import CliRunner
 from moodlecli.main import cli
 import boto3
@@ -39,8 +41,7 @@ def moodle_requests_mock(requests_mock):
         elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
             return {'courseid': 21, 'users': {'id': 3}}
         elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
-            return [{'user_id': 2, 'user_uuid': 'abcd'},
-                    {'user_id': 3, 'user_uuid': 'defg'}]
+            return [{'user_id': 2, 'user_uuid': 'abcd'}]
         else:
             return []
 
@@ -280,14 +281,16 @@ def test_export_grades(moodle_requests_mock, tmp_path, mocker):
 
 def test_export_users(moodle_requests_mock, tmp_path, mocker):
     runner = CliRunner()
+    random.seed(1)
 
     s3_client = boto3.client('s3')
     stubber = botocore.stub.Stubber(s3_client)
 
     key = '/path/key.txt'
     bucket_name = 'test-bucket'
+    generated_uuid = str(UUID('cd613e30d8f16adf91b7584a2265b1f5'))
     data = [{'id': 2, 'user_uuid': 'abcd'},
-            {'id': 3, 'user_uuid': 'defg'}]
+            {'id': 3, 'user_uuid': generated_uuid}]
 
     expected_params = {'Bucket': bucket_name,
                        'Body': json.dumps(data).encode('utf-8'),
@@ -318,6 +321,7 @@ def test_export_bulk_csv(requests_mock, tmp_path):
 
 
 def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
+    random.seed(1)
     runner = CliRunner()
 
     s3_client = boto3.client('s3')
@@ -326,8 +330,9 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
     directory = 'path'
     bucket_name = 'test-bucket'
     grade_data = {'courseid': 21, 'users': {'id': 3}}
+    generated_uuid = str(UUID('cd613e30d8f16adf91b7584a2265b1f5'))
     user_data = [{'id': 2, 'user_uuid': 'abcd'},
-                 {'id': 3, 'user_uuid': 'defg'}]
+                 {'id': 3, 'user_uuid': generated_uuid}]
 
     with runner.isolated_filesystem(temp_dir=tmp_path):
 
