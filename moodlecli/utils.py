@@ -206,7 +206,7 @@ def inject_uuids(uuid_data, user_data):
     for user in user_data:
         user_id = int(user['id'])
         if user_id in uuid_map.keys():
-            user['user_uuid'] = uuid_map[user_id]
+            user['uuid'] = uuid_map[user_id]
         else:
-            user['user_uuid'] = str(UUID(int=random.getrandbits(128)))
+            user['uuid'] = None
     return user_data

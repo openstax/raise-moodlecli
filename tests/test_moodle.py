@@ -390,7 +390,7 @@ def test_get_user_uuids(mocker):
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
-    client.get_user_uuids([])
+    client.get_user_uuids()
     session_mock.get.assert_called_once_with(
         f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
         params={
@@ -399,3 +399,22 @@ def test_get_user_uuids(mocker):
             "wstoken": TEST_MOODLE_TOKEN
         }
     )
+
+
+def test_get_inidividual_user_uuids(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_user_uuids([1, 2])
+    print(session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_USER_UUIDS,
+            "user_ids[0][id]": 1,
+            "user_ids[1][id]": 2,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    ))

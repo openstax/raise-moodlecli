@@ -226,5 +226,9 @@ class MoodleClient:
     def get_course_enrolment_url(self, course_id):
         return f"{self.moodle_url}/enrol/index.php?id={course_id}"
 
-    def get_user_uuids(self, user_ids):
-        return self._get(MOODLE_FUNC_GET_USER_UUIDS, user_ids)
+    def get_user_uuids(self, user_ids=[]):
+        ids_list = []
+        for id in user_ids:
+            ids_list.append({'id': id})
+        params = {'user_ids': ids_list}
+        return self._get(MOODLE_FUNC_GET_USER_UUIDS, params)
