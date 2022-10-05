@@ -211,7 +211,7 @@ def inject_uuids(uuid_data, user_data):
     return user_data
 
 
-def maybe_user_data(moodle_client, user_ids=[]):
+def maybe_user_uuids(moodle_client, user_ids=[]):
     try:
         return moodle_client.get_user_uuids(user_ids)
     except Exception:

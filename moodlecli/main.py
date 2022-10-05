@@ -252,7 +252,7 @@ def export_users(source_course_id, bucket_name, key):
     user_data = moodle.get_users_by_course(
         source_course_id
     )
-    uuid_data = utils.maybe_user_data(moodle)
+    uuid_data = utils.maybe_user_uuids(moodle)
     user_data = utils.inject_uuids(uuid_data, user_data)
 
     aws.put_json_data(user_data, bucket_name, key)
@@ -271,7 +271,7 @@ def export_bulk(input_csv, bucket_name, directory, data_type):
     moodle = get_moodle_client()
     course_ids = csv.DictReader(input_csv)
     if data_type == 'users':
-        uuid_data = utils.maybe_user_data(moodle)
+        uuid_data = utils.maybe_user_uuids(moodle)
     for row in course_ids:
         id = row[utils.CSV_COURSE_ID]
         key = f'{directory}/{id}.json'
