@@ -21,3 +21,8 @@ def test_maybe_user_uuids(requests_mock):
 
     with pytest.raises(Exception):
         utils.maybe_user_uuids(moodle)
+
+    requests_mock.get(f'{TEST_MOODLE_URL}{MOODLE_WEBSERVICE_PATH}',
+                      json={'exception': 'dml_missing_record_exception'})
+
+    assert (utils.maybe_user_uuids(moodle) == [])
