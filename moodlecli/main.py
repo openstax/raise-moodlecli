@@ -245,7 +245,7 @@ def export_grades(source_course_id, bucket_name, key):
 @click.argument('bucket_name')
 @click.argument('key')
 def export_users(source_course_id, bucket_name, key):
-    """Collects user data and research ids from moodle, injects 
+    """Collects user data and research ids from moodle, injects
     the uuids into the user data, then outputs the user data to s3"""
     moodle = get_moodle_client()
 

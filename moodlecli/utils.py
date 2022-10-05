@@ -1,6 +1,5 @@
 import string
 import random
-from uuid import UUID
 from prettytable import PrettyTable
 
 CSV_INST_FNAME = 'instructor_firstname'
