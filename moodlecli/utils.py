@@ -214,8 +214,5 @@ def inject_uuids(uuid_data, user_data):
 def maybe_user_data(moodle_client, user_ids=[]):
     try:
         return moodle_client.get_user_uuids(user_ids)
-    except Exception as e:
-        if e.args[0]['exception'] == 'dml_missing_record_exception':
-            return []
-        else:
-            raise e
+    except Exception:
+        return []
