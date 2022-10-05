@@ -270,7 +270,8 @@ def export_bulk(input_csv, bucket_name, directory, data_type):
 
     moodle = get_moodle_client()
     course_ids = csv.DictReader(input_csv)
-    uuid_data = moodle.get_user_uuids()
+    if data_type == 'users':
+        uuid_data = moodle.get_user_uuids()
     for row in course_ids:
         id = row[utils.CSV_COURSE_ID]
         key = f'{directory}/{id}.json'
