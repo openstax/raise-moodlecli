@@ -100,7 +100,7 @@ def import_bulk_input_csv_fieldnames():
 
 def bulk_export_csv_course_ids():
     """Return array of fieldnames used in output CSV for bulk export"""
-    return{
+    return {
         CSV_COURSE_ID
     }
 
@@ -193,3 +193,29 @@ def setup_duplicate_course(
     coursedata[CSV_COURSE_ENROLMENT_KEY] = enrolment_key
 
     return coursedata
+
+
+def inject_uuids(uuid_data, user_data):
+    uuid_map = {}
+    # Make a hash of all user_ids to uuids
+    for item in uuid_data:
+        uuid_map[int(item['user_id'])] = item['user_uuid']
+
+    # Add uuids to user data
+    for user in user_data:
+        user_id = int(user['id'])
+        if user_id in uuid_map.keys():
+            user['uuid'] = uuid_map[user_id]
+        else:
+            user['uuid'] = None
+    return user_data
+
+
+def maybe_user_uuids(moodle_client, user_ids=[]):
+    try:
+        return moodle_client.get_user_uuids(user_ids)
+    except Exception as e:
+        if e.args[0]['exception'] == 'dml_missing_record_exception':
+            return []
+        else:
+            raise e

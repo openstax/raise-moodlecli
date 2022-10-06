@@ -35,9 +35,11 @@ def moodle_requests_mock(requests_mock):
         elif wsfunction == moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS:
             return [{'id': 2}]
         elif wsfunction == moodle.MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS:
-            return {'courseid': 21, 'users': {'id': 3}}
+            return [{'id': 2}, {'id': 3}]
         elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
             return {'courseid': 21, 'users': {'id': 3}}
+        elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
+            return [{'user_id': 2, 'user_uuid': 'abcd'}]
         else:
             return []
 
@@ -283,7 +285,8 @@ def test_export_users(moodle_requests_mock, tmp_path, mocker):
 
     key = '/path/key.txt'
     bucket_name = 'test-bucket'
-    data = {'courseid': 21, 'users': {'id': 3}}
+    data = [{'id': 2, 'uuid': 'abcd'},
+            {'id': 3, 'uuid': None}]
 
     expected_params = {'Bucket': bucket_name,
                        'Body': json.dumps(data).encode('utf-8'),
@@ -321,7 +324,9 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
 
     directory = 'path'
     bucket_name = 'test-bucket'
-    data = {'courseid': 21, 'users': {'id': 3}}
+    grade_data = {'courseid': 21, 'users': {'id': 3}}
+    user_data = [{'id': 2, 'uuid': 'abcd'},
+                 {'id': 3, 'uuid': None}]
 
     with runner.isolated_filesystem(temp_dir=tmp_path):
 
@@ -332,9 +337,8 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_COURSE_ID: 1}])
-
         expected_params = {'Bucket': bucket_name,
-                           'Body': json.dumps(data).encode('utf-8'),
+                           'Body': json.dumps(grade_data).encode('utf-8'),
                            'Key': f'{directory}/1.json'}
         stubber.add_response('put_object', {}, expected_params)
         stubber.activate()
@@ -346,7 +350,9 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
                                       env=TEST_ENV)
         assert result_grades.exit_code == 0
         stubber.assert_no_pending_responses()
-
+        expected_params = {'Bucket': bucket_name,
+                           'Body': json.dumps(user_data).encode('utf-8'),
+                           'Key': f'{directory}/1.json'}
         stubber.add_response('put_object', {}, expected_params)
         stubber.activate()
         result_users = runner.invoke(cli, ['export-bulk', 'test.csv',
