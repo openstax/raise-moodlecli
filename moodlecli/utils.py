@@ -173,8 +173,8 @@ def setup_duplicate_course(
             courses = moodle_client.get_courses()
             for course in courses:
                 if course["shortname"] == coursedata[CSV_COURSE_SHORTNAME]:
-                    print(f"Found course copy: {course}")
                     new_course_id = course["id"]
+                    print(f"Found copy: Course ID {new_course_id}")
                     course_found = True
                     break
 
