@@ -1,6 +1,8 @@
 import string
 import random
 from prettytable import PrettyTable
+from requests.exceptions import ConnectionError
+from time import sleep
 
 CSV_INST_FNAME = 'instructor_firstname'
 CSV_INST_LNAME = 'instructor_lastname'
@@ -150,14 +152,31 @@ def setup_duplicate_course(
         coursedata[CSV_INST_EMAIL],
         coursedata[CSV_INST_AUTH]
     )
-    # Create a duplicate course using the base course
-    new_course = moodle_client.copy_course(
-        base_course_id,
-        coursedata[CSV_COURSE_NAME],
-        coursedata[CSV_COURSE_SHORTNAME],
-        coursedata[CSV_COURSE_CATEGORY]
-    )
-    new_course_id = new_course["id"]
+    try:
+        # Create a duplicate course using the base course
+        new_course = moodle_client.copy_course(
+            base_course_id,
+            coursedata[CSV_COURSE_NAME],
+            coursedata[CSV_COURSE_SHORTNAME],
+            coursedata[CSV_COURSE_CATEGORY]
+        )
+        new_course_id = new_course["id"]
+    except ConnectionError:
+        # Implement work around for Global Accelerator timeout of 340s
+        # (refer to https://github.com/openstax/k12/issues/316 for details)
+        print("Remote disconnected during course copy!")
+        print(f"Polling for course {coursedata[CSV_COURSE_SHORTNAME]}...")
+        course_found = False
+        while not course_found:
+            sleep(30)
+            print("Querying current courses")
+            courses = moodle_client.get_courses()
+            for course in courses:
+                if course["shortname"] == coursedata[CSV_COURSE_SHORTNAME]:
+                    new_course_id = course["id"]
+                    print(f"Found copy: Course ID {new_course_id}")
+                    course_found = True
+                    break
 
     # Enrol teacher user as a course instructor
     moodle_client.enrol_user(

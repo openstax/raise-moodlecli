@@ -2,6 +2,7 @@ import pytest
 from moodlecli import moodle
 from moodlecli import utils
 import random
+from requests.exceptions import ConnectionError
 
 TEST_MOODLE_URL = "http://dagobah"
 TEST_MOODLE_TOKEN = "1234"
@@ -297,6 +298,63 @@ def test_setup_duplicate_course(mocker):
     moodle_mock.get_user_by_email.return_value = None
     moodle_mock.create_user.return_value = {"id": "userid"}
     moodle_mock.copy_course.return_value = {"id": "courseid"}
+    moodle_mock.get_self_enrolment_methods.return_value = [{"id": "enrolid"}]
+    moodle_mock.get_course_enrolment_url.return_value = "enrolmenturl"
+
+    res = utils.setup_duplicate_course(
+        moodle_mock,
+        111,
+        course_data,
+        1,
+        2
+    )
+
+    moodle_mock.create_user.assert_called_once_with(
+        "fname", "lname", "fname@lname.com", "oauth2"
+    )
+    moodle_mock.copy_course.assert_called_once_with(
+        111, "test course", "testcourse", 1
+    )
+    moodle_mock.enrol_user.assert_called_once_with(
+        "courseid",
+        "userid",
+        1
+    )
+    moodle_mock.enable_self_enrolment_method.assert_called_once_with("enrolid")
+    moodle_mock.set_self_enrolment_method_key.assert_called_once()
+    assert moodle_mock.set_self_enrolment_method_key.call_args.args[0] == \
+        "enrolid"
+    assert res[utils.CSV_COURSE_ID] == "courseid"
+    assert res[utils.CSV_COURSE_ENROLMENT_URL] == "enrolmenturl"
+    assert res[utils.CSV_COURSE_ENROLMENT_KEY] == "suave-spider-1033"
+
+
+def test_setup_duplicate_course_timeout_workaround(mocker):
+    random.seed(1)
+    mocker.patch(
+        "moodlecli.utils.sleep",
+        lambda x: None
+    )
+    moodle_mock = mocker.Mock()
+    course_data = {
+        utils.CSV_INST_FNAME: "fname",
+        utils.CSV_INST_LNAME: "lname",
+        utils.CSV_INST_EMAIL: "fname@lname.com",
+        utils.CSV_INST_AUTH: "oauth2",
+        utils.CSV_COURSE_NAME: "test course",
+        utils.CSV_COURSE_SHORTNAME: "testcourse",
+        utils.CSV_COURSE_CATEGORY: 1
+    }
+    moodle_mock.get_user_by_email.return_value = None
+    moodle_mock.create_user.return_value = {"id": "userid"}
+    moodle_mock.copy_course.side_effect = ConnectionError("Mock timeout")
+    moodle_mock.get_courses.side_effect = [
+        [{"shortname": "notexpectedcourse", "id": "courseid0"}],
+        [
+            {"shortname": "notexpectedcourse", "id": "courseid0"},
+            {"shortname": "testcourse", "id": "courseid"}
+        ]
+    ]
     moodle_mock.get_self_enrolment_methods.return_value = [{"id": "enrolid"}]
     moodle_mock.get_course_enrolment_url.return_value = "enrolmenturl"
 
