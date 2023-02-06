@@ -1,7 +1,7 @@
 import string
 import random
 from prettytable import PrettyTable
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 from time import sleep
 
 CSV_INST_FNAME = 'instructor_firstname'
@@ -161,7 +161,7 @@ def setup_duplicate_course(
             coursedata[CSV_COURSE_CATEGORY]
         )
         new_course_id = new_course["id"]
-    except ConnectionError:
+    except (ConnectionError, Timeout):
         # Implement work around for Global Accelerator timeout of 340s
         # (refer to https://github.com/openstax/k12/issues/316 for details)
         print("Remote disconnected during course copy!")

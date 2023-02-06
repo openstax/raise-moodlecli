@@ -22,6 +22,8 @@ MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = \
 MOODLE_FUNC_GET_USER_UUIDS = \
     "local_raisecli_get_user_uuids"
 
+MOODLE_REQUEST_TIMEOUT = 360  # 6 minutes
+
 
 def convert_moodle_params(data, prefix=""):
     """Given a dict / array, convert into a flat dict that Moodle expects
@@ -93,7 +95,8 @@ class MoodleClient:
         """POST to service function with provided data as parameters"""
         res = self.session.post(
             self.service_endpoint,
-            self._create_params(service_function, data)
+            self._create_params(service_function, data),
+            timeout=MOODLE_REQUEST_TIMEOUT
         )
         return check_for_moodle_error(res)
 
@@ -101,7 +104,8 @@ class MoodleClient:
         """GET to service function with provided data as parameters"""
         res = self.session.get(
             self.service_endpoint,
-            params=self._create_params(service_function, data)
+            params=self._create_params(service_function, data),
+            timeout=MOODLE_REQUEST_TIMEOUT
         )
         return check_for_moodle_error(res)
 
