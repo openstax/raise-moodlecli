@@ -53,7 +53,8 @@ def test_copy_course(mocker):
             "wsfunction": moodle.MOODLE_FUNC_DUPLICATE_COURSE,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -73,7 +74,8 @@ def test_import_course(mocker):
             "wsfunction": moodle.MOODLE_FUNC_IMPORT_COURSE,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -90,7 +92,8 @@ def test_get_courses(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GET_COURSES,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -109,7 +112,8 @@ def test_get_self_enrolment_methods(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -127,7 +131,8 @@ def test_get_role_by_shortname(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GET_ROLE_BY_SHORTNAME,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -145,7 +150,8 @@ def test_enable_self_enrolment_method(mocker):
             "wsfunction": moodle.MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -164,7 +170,8 @@ def test_set_self_enrolment_method_key(mocker):
             "wsfunction": moodle.MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -186,7 +193,8 @@ def test_get_user_by_email(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GET_USERS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
     assert res == user_data
 
@@ -224,7 +232,8 @@ def test_create_user(mocker):
             "wsfunction": moodle.MOODLE_FUNC_CREATE_USERS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
     # Check that password is included for manual auth
@@ -250,7 +259,8 @@ def test_create_user_capital_email(mocker):
             "wsfunction": moodle.MOODLE_FUNC_CREATE_USERS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -279,7 +289,8 @@ def test_enrol_user(mocker):
             "wsfunction": moodle.MOODLE_FUNC_ENROL_USER,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -415,7 +426,8 @@ def test_get_course_grades(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
     assert grades_json == [{}]
@@ -436,7 +448,8 @@ def test_get_users_by_course(mocker):
             "wsfunction": moodle.MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
     assert users_json == [{}]
@@ -455,7 +468,8 @@ def test_get_user_uuids(mocker):
             "wsfunction": moodle.MOODLE_FUNC_GET_USER_UUIDS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     )
 
 
@@ -474,5 +488,6 @@ def test_get_inidividual_user_uuids(mocker):
             "user_ids[1][id]": 2,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
-        }
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
     ))
