@@ -233,11 +233,13 @@ def export_grades(source_course_id, bucket_name, key):
     """Output to JSON the grades for a given course into a s3 bucket"""
     moodle = get_moodle_client()
 
-    grades = moodle.get_grades_by_course(
+    old_grades = aws.get_json_data(bucket_name, key, {})
+    new_grades = utils.update_grades_data(
+        moodle,
         source_course_id,
+        old_grades
     )
-
-    aws.put_json_data(grades, bucket_name, key)
+    aws.put_json_data(new_grades, bucket_name, key)
 
 
 @cli.command()
@@ -276,8 +278,13 @@ def export_bulk(input_csv, bucket_name, directory, data_type):
         id = row[utils.CSV_COURSE_ID]
         key = f'{directory}/{id}.json'
         if data_type == 'grades':
-            grade_data = moodle.get_grades_by_course(id)
-            aws.put_json_data(grade_data, bucket_name, key)
+            old_grades = aws.get_json_data(bucket_name, key, {})
+            new_grades = utils.update_grades_data(
+                moodle,
+                id,
+                old_grades
+            )
+            aws.put_json_data(new_grades, bucket_name, key)
         elif data_type == 'users':
             user_data = moodle.get_users_by_course(id)
             user_data = utils.inject_uuids(uuid_data, user_data)

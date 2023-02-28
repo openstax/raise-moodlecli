@@ -238,3 +238,101 @@ def maybe_user_uuids(moodle_client, user_ids=[]):
             return []
         else:
             raise e
+
+
+def update_grades_data(moodle_client, course_id, old_grades):
+    """This utility function builds a single object which includes data from
+    multiple Moodle endpoints. The final object includes the following:
+    {
+        "usergrades": [ // Data as returned by get_grades_by_course ],
+        "quizzes": [ // Data as returned by get_quizzes_by_courses ],
+        "attempts": {
+            "{user_id}": {
+                "{quiz_id}": {
+                    "summaries": [
+                        // Data as returned by get_user_quiz_attempts
+                    ]
+                    "details": {
+                        "{attempt_id}": {
+                            // Data as returned by get_quiz_attempt_details
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    The function expects the same structure when parsing to determine if
+    data from old_grades can be used as a cache to avoid unnecessary calls
+    to Moodle.
+    """
+
+    def _attempts_data_is_stale(attempts, user_id, quiz_id, new_attempt_ts):
+        old_user_attempts = attempts.get(user_id, {})
+        old_quiz_attempts = old_user_attempts.get(quiz_id, {})
+
+        # Use the gradednotificationsenttime to decide whether data is stale
+        latest_found_ts = 0
+        for summary in old_quiz_attempts.get("summaries", []):
+            tmp_attempt_ts = summary["gradednotificationsenttime"]
+            if (tmp_attempt_ts is not None) and \
+               (latest_found_ts < tmp_attempt_ts):
+                latest_found_ts = tmp_attempt_ts
+
+        return new_attempt_ts > latest_found_ts
+
+    # Always pull latest grades and quiz data. The grades data is the basis
+    # of the data object returned by this function.
+    new_grades = moodle_client.get_grades_by_course(course_id)
+    new_quizzes = moodle_client.get_quizzes_by_courses([course_id])
+
+    new_grades["quizzes"] = new_quizzes["quizzes"]
+    new_grades["attempts"] = {}
+
+    new_usergrades = new_grades["usergrades"]
+    old_attempts = old_grades.get("attempts", {})
+
+    for new_usergrade in new_usergrades:
+        user_id = str(new_usergrade["userid"])
+        new_grades["attempts"][user_id] = {}
+
+        for new_gradeitem in new_usergrade["gradeitems"]:
+            gradedatesubmitted = new_gradeitem["gradedatesubmitted"]
+            if gradedatesubmitted is None:
+                # Nothing more to do for this user + quiz combo
+                continue
+            quiz_id = str(new_gradeitem["iteminstance"])
+            new_grades["attempts"][user_id][quiz_id] = {}
+            tmp_attempts = {}
+            if _attempts_data_is_stale(
+                old_attempts,
+                user_id,
+                quiz_id,
+                gradedatesubmitted
+            ):
+                # Fetch latest attempt summaries
+                data = moodle_client.get_user_quiz_attempts(user_id, quiz_id)
+                tmp_attempts["summaries"] = data["attempts"]
+            else:
+                # Copy data from old dataset
+                tmp_attempts["summaries"] = \
+                    old_attempts[user_id][quiz_id]["summaries"]
+
+            tmp_attempts["details"] = {}
+            for summary in tmp_attempts["summaries"]:
+                attempt_id = str(summary["id"])
+                maybe_attempt_details = old_attempts.get(user_id, {}).get(
+                    quiz_id,
+                    {}
+                ).get("details", {}).get(attempt_id)
+
+                if maybe_attempt_details:
+                    attempt_details = maybe_attempt_details
+                else:
+                    attempt_details = \
+                        moodle_client.get_quiz_attempt_details(attempt_id)
+                tmp_attempts["details"][attempt_id] = attempt_details
+
+            new_grades["attempts"][user_id][quiz_id] = tmp_attempts
+
+    return new_grades
