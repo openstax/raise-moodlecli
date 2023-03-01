@@ -63,7 +63,8 @@ def moodle_mock(mocker):
                 {
                     "userid": 11,
                     "gradeitems": [
-                        {"iteminstance": 22, "gradedatesubmitted": 33}
+                        {"iteminstance": 22, "gradedatesubmitted": 33},
+                        {"iteminstance": 23, "gradedatesubmitted": None}
                     ]
                 }
             ]
@@ -101,7 +102,8 @@ def test_update_grades_data_empty_cache(moodle_mock):
             {
                 "userid": 11,
                 "gradeitems": [
-                    {"iteminstance": 22, "gradedatesubmitted": 33}
+                    {"iteminstance": 22, "gradedatesubmitted": 33},
+                    {"iteminstance": 23, "gradedatesubmitted": None}
                 ]
             }
         ],
@@ -140,7 +142,8 @@ def test_update_grades_data_latest_cache(moodle_mock):
                 {
                     "userid": 11,
                     "gradeitems": [
-                        {"iteminstance": 22, "gradedatesubmitted": 33}
+                        {"iteminstance": 22, "gradedatesubmitted": 33},
+                        {"iteminstance": 23, "gradedatesubmitted": None}
                     ]
                 }
             ],
@@ -179,7 +182,8 @@ def test_update_grades_data_latest_cache(moodle_mock):
             {
                 "userid": 11,
                 "gradeitems": [
-                    {"iteminstance": 22, "gradedatesubmitted": 33}
+                    {"iteminstance": 22, "gradedatesubmitted": 33},
+                    {"iteminstance": 23, "gradedatesubmitted": None}
                 ]
             }
         ],
@@ -218,7 +222,8 @@ def test_update_grades_data_stale_cache(moodle_mock):
                 {
                     "userid": 11,
                     "gradeitems": [
-                        {"iteminstance": 22, "gradedatesubmitted": 22}
+                        {"iteminstance": 22, "gradedatesubmitted": 22},
+                        {"iteminstance": 23, "gradedatesubmitted": None}
                     ]
                 }
             ],
@@ -252,7 +257,8 @@ def test_update_grades_data_stale_cache(moodle_mock):
             {
                 "userid": 11,
                 "gradeitems": [
-                    {"iteminstance": 22, "gradedatesubmitted": 33}
+                    {"iteminstance": 22, "gradedatesubmitted": 33},
+                    {"iteminstance": 23, "gradedatesubmitted": None}
                 ]
             }
         ],
