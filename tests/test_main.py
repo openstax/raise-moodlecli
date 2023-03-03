@@ -36,8 +36,6 @@ def moodle_requests_mock(requests_mock):
             return [{'id': 2}]
         elif wsfunction == moodle.MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS:
             return [{'id': 2}, {'id': 3}]
-        elif wsfunction == moodle.MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS:
-            return {'courseid': 21, 'users': {'id': 3}}
         elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
             return [{'user_id': 2, 'user_uuid': 'abcd'}]
         else:
@@ -252,31 +250,6 @@ def test_set_self_enrolment_method_key(moodle_requests_mock):
     assert result.exit_code == 0
 
 
-def test_export_grades(moodle_requests_mock, tmp_path, mocker):
-    runner = CliRunner()
-
-    s3_client = boto3.client('s3')
-    stubber = botocore.stub.Stubber(s3_client)
-
-    key = '/path/key.txt'
-    bucket_name = 'test-bucket'
-    data = {'courseid': 21, 'users': {'id': 3}}
-
-    expected_params = {'Bucket': bucket_name,
-                       'Body': json.dumps(data).encode('utf-8'),
-                       'Key': key}
-    stubber.add_response('put_object', {}, expected_params)
-    stubber.activate()
-    mocker.patch("boto3.client", lambda service: s3_client)
-
-    result = runner.invoke(cli, ['export-grades',
-                                 '21', bucket_name, key],
-                           env=TEST_ENV)
-
-    assert result.exit_code == 0
-    stubber.assert_no_pending_responses()
-
-
 def test_export_users(moodle_requests_mock, tmp_path, mocker):
     runner = CliRunner()
 
@@ -316,7 +289,7 @@ def test_export_bulk_csv(requests_mock, tmp_path):
         assert os.stat("output.csv").st_size != 0
 
 
-def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
+def test_export_bulk_users(moodle_requests_mock, tmp_path, mocker):
     runner = CliRunner()
 
     s3_client = boto3.client('s3')
@@ -324,7 +297,6 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
 
     directory = 'path'
     bucket_name = 'test-bucket'
-    grade_data = {'courseid': 21, 'users': {'id': 3}}
     user_data = [{'id': 2, 'uuid': 'abcd'},
                  {'id': 3, 'uuid': None}]
 
@@ -337,19 +309,9 @@ def test_export_bulk(moodle_requests_mock, tmp_path, mocker):
                 )
             writer.writeheader()
             writer.writerows([{utils.CSV_COURSE_ID: 1}])
-        expected_params = {'Bucket': bucket_name,
-                           'Body': json.dumps(grade_data).encode('utf-8'),
-                           'Key': f'{directory}/1.json'}
-        stubber.add_response('put_object', {}, expected_params)
-        stubber.activate()
+
         mocker.patch("boto3.client", lambda service: s3_client)
 
-        result_grades = runner.invoke(cli, ['export-bulk',
-                                            'test.csv', bucket_name,
-                                            directory, 'grades'],
-                                      env=TEST_ENV)
-        assert result_grades.exit_code == 0
-        stubber.assert_no_pending_responses()
         expected_params = {'Bucket': bucket_name,
                            'Body': json.dumps(user_data).encode('utf-8'),
                            'Key': f'{directory}/1.json'}

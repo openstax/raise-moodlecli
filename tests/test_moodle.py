@@ -491,3 +491,62 @@ def test_get_inidividual_user_uuids(mocker):
         },
         timeout=moodle.MOODLE_REQUEST_TIMEOUT
     ))
+
+
+def test_get_quizzes_by_courses(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_quizzes_by_courses([1, 2])
+    print(session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_QUIZZES_BY_COURSES,
+            "courseids[0]": 1,
+            "courseids[1]": 2,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    ))
+
+
+def test_get_user_quiz_attempts(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_user_quiz_attempts(11, 22)
+    print(session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_USER_QUIZ_ATTEMPTS,
+            "userid": 11,
+            "quizid": 22,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    ))
+
+
+def test_get_quiz_attempt_details(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_quiz_attempt_details(11)
+    print(session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_QUIZ_ATTEMPT,
+            "attemptid": 11,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    ))

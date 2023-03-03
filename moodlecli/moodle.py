@@ -2,25 +2,26 @@ from . import utils
 
 MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
+MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
 MOODLE_FUNC_IMPORT_COURSE = "core_course_import_course"
+MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = "core_enrol_get_enrolled_users"
 MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
 MOODLE_FUNC_GET_USERS = "core_user_get_users"
-MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
 MOODLE_FUNC_ENROL_USER = "enrol_manual_enrol_users"
+MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS = \
+    "gradereport_user_get_grade_items"
 MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD = \
     "local_raisecli_enable_self_enrolment_method"
 MOODLE_FUNC_GET_ROLE_BY_SHORTNAME = "local_raisecli_get_role_by_shortname"
 MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS = \
     "local_raisecli_get_self_enrolment_methods"
+MOODLE_FUNC_GET_USER_UUIDS = "local_raisecli_get_user_uuids"
+MOODLE_FUNC_GET_QUIZ_ATTEMPT = "local_raisecli_get_quiz_attempt"
 MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
     "local_raisecli_set_self_enrolment_method_key"
-MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS = \
-    "gradereport_user_get_grade_items"
-MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = \
-    "core_enrol_get_enrolled_users"
-MOODLE_FUNC_GET_USER_UUIDS = \
-    "local_raisecli_get_user_uuids"
+MOODLE_FUNC_GET_QUIZZES_BY_COURSES = "mod_quiz_get_quizzes_by_courses"
+MOODLE_FUNC_GET_USER_QUIZ_ATTEMPTS = "mod_quiz_get_user_attempts"
 
 MOODLE_REQUEST_TIMEOUT = 360  # 6 minutes
 
@@ -236,3 +237,22 @@ class MoodleClient:
             ids_list.append({'id': id})
         params = {'user_ids': ids_list}
         return self._get(MOODLE_FUNC_GET_USER_UUIDS, params)
+
+    def get_quizzes_by_courses(self, course_ids):
+        data = {
+            "courseids": course_ids
+        }
+        return self._get(MOODLE_FUNC_GET_QUIZZES_BY_COURSES, data)
+
+    def get_user_quiz_attempts(self, user_id, quiz_id):
+        data = {
+            "userid": user_id,
+            "quizid": quiz_id
+        }
+        return self._get(MOODLE_FUNC_GET_USER_QUIZ_ATTEMPTS, data)
+
+    def get_quiz_attempt_details(self, attempt_id):
+        data = {
+            "attemptid": attempt_id
+        }
+        return self._get(MOODLE_FUNC_GET_QUIZ_ATTEMPT, data)
