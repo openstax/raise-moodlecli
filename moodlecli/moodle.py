@@ -9,6 +9,7 @@ MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = "core_enrol_get_enrolled_users"
 MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
 MOODLE_FUNC_GET_USERS = "core_user_get_users"
 MOODLE_FUNC_ENROL_USER = "enrol_manual_enrol_users"
+MOODLE_FUNC_UNENROL_USER = "enrol_manual_unenrol_users"
 MOODLE_FUNC_GRADEREPORT_USER_GET_GRADE_ITEMS = \
     "gradereport_user_get_grade_items"
 MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD = \
@@ -215,6 +216,15 @@ class MoodleClient:
             }]
         }
         return self._post(MOODLE_FUNC_ENROL_USER, data)
+
+    def unenrol_user(self, course_id, user_id):
+        data = {
+            "enrolments": [{
+                "courseid": course_id,
+                "userid": user_id,
+            }]
+        }
+        return self._post(MOODLE_FUNC_UNENROL_USER, data)
 
     def get_grades_by_course(self, course_id):
         data = {

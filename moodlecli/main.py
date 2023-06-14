@@ -201,6 +201,34 @@ def enrol_bulk(course_id, role_shortname, userdata_csv):
 
 @cli.command()
 @click.argument('output_csv', type=click.File(mode='w'))
+def unenrol_bulk_csv(output_csv):
+    """Output an empty CSV template for unenrol-bulk"""
+    writer = csv.DictWriter(
+        output_csv,
+        utils.unenrol_bulk_input_csv_fieldnames()
+    )
+    writer.writeheader()
+
+
+@cli.command()
+@click.argument('course_id')
+@click.argument('userdata_csv', type=click.File(mode='r'))
+def unenrol_bulk(course_id, userdata_csv):
+    """Bulk unenrol users from course with role"""
+    moodle = get_moodle_client()
+
+    user_reader = csv.DictReader(userdata_csv)
+    for user in user_reader:
+        existing_user = moodle.get_user_by_email(
+          user['user_email']
+        )
+        if existing_user:
+            user_id = existing_user['id']
+            moodle.unenrol_user(course_id, user_id)
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
 def import_bulk_csv(output_csv):
     """Output an empty CSV template for import-bulk"""
     writer = csv.DictWriter(
