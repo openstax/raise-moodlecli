@@ -72,12 +72,9 @@ def test_copy_course(moodle_requests_mock):
     assert result.exit_code == 0
 
 
-def test_course_bulk_csv(requests_mock, tmp_path):
-    test_json = {'foo': 'bar'}
+def test_course_bulk_csv(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
-        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
-                          json=test_json)
 
         result = runner.invoke(cli, ['course-bulk-csv', 'output.csv'],
                                env=TEST_ENV)
@@ -168,12 +165,9 @@ def test_enrol_bulk(moodle_requests_mock, tmp_path):
         assert result.exit_code == 0
 
 
-def test_enrol_bulk_csv(requests_mock, tmp_path):
-    test_json = {'foo': 'bar'}
+def test_enrol_bulk_csv(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
-        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
-                          json=test_json)
 
         result = runner.invoke(cli, ['enrol-bulk-csv', 'output.csv'],
                                env=TEST_ENV)
@@ -200,12 +194,9 @@ def test_unenrol_bulk(moodle_requests_mock, tmp_path):
         assert result.exit_code == 0
 
 
-def test_unenrol_bulk_csv(requests_mock, tmp_path):
-    test_json = {'foo': 'bar'}
+def test_unenrol_bulk_csv(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
-        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
-                          json=test_json)
 
         result = runner.invoke(cli, ['unenrol-bulk-csv', 'output.csv'],
                                env=TEST_ENV)
@@ -213,12 +204,9 @@ def test_unenrol_bulk_csv(requests_mock, tmp_path):
         assert os.stat("output.csv").st_size != 0
 
 
-def test_import_bulk_csv(requests_mock, tmp_path):
-    test_json = {'foo': 'bar'}
+def test_import_bulk_csv(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
-        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
-                          json=test_json)
 
         result = runner.invoke(cli, ['import-bulk-csv', 'output.csv'],
                                env=TEST_ENV)
@@ -308,12 +296,9 @@ def test_export_users(moodle_requests_mock, tmp_path, mocker):
     stubber.assert_no_pending_responses()
 
 
-def test_export_bulk_csv(requests_mock, tmp_path):
-    test_json = {'foo': 'bar'}
+def test_export_bulk_csv(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
-        requests_mock.get(f'{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}',
-                          json=test_json)
 
         result = runner.invoke(cli, ['export-bulk-csv', 'output.csv'],
                                env=TEST_ENV)

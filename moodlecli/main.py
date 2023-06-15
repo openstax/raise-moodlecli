@@ -214,7 +214,7 @@ def unenrol_bulk_csv(output_csv):
 @click.argument('course_id')
 @click.argument('userdata_csv', type=click.File(mode='r'))
 def unenrol_bulk(course_id, userdata_csv):
-    """Bulk unenrol users from course with role"""
+    """Bulk unenrol users from course"""
     moodle = get_moodle_client()
 
     user_reader = csv.DictReader(userdata_csv)
