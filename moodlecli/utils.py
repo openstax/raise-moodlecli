@@ -93,6 +93,13 @@ def enrol_bulk_input_csv_fieldnames():
     ]
 
 
+def unenrol_bulk_input_csv_fieldnames():
+    """Return array of email addresses used in input CSV for unenrol"""
+    return [
+        CSV_USER_EMAIL
+    ]
+
+
 def import_bulk_input_csv_fieldnames():
     """Return array of fieldnames used in inpu CSV for bulk import"""
     return [

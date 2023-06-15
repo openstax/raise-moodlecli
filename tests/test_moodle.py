@@ -294,6 +294,26 @@ def test_enrol_user(mocker):
     )
 
 
+def test_unenrol_user(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.unenrol_user(1, 2)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "enrolments[0][courseid]": 1,
+            "enrolments[0][userid]": 2,
+            "wsfunction": moodle.MOODLE_FUNC_UNENROL_USER,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    )
+
+
 def test_setup_duplicate_course(mocker):
     random.seed(1)
     moodle_mock = mocker.Mock()
