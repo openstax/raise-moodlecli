@@ -379,12 +379,9 @@ def test_setup_duplicate_course_timeout_workaround(mocker):
     moodle_mock.get_user_by_email.return_value = None
     moodle_mock.create_user.return_value = {"id": "userid"}
     moodle_mock.copy_course.side_effect = ConnectionError("Mock timeout")
-    moodle_mock.get_courses.side_effect = [
-        [{"shortname": "notexpectedcourse", "id": "courseid0"}],
-        [
-            {"shortname": "notexpectedcourse", "id": "courseid0"},
-            {"shortname": "testcourse", "id": "courseid"}
-        ]
+    moodle_mock.get_course_by_shortname.side_effect = [
+        {'courses': []},
+        {'courses': [{"shortname": "testcourse", "id": "courseid"}]},
     ]
     moodle_mock.get_self_enrolment_methods.return_value = [{"id": "enrolid"}]
     moodle_mock.get_course_enrolment_url.return_value = "enrolmenturl"

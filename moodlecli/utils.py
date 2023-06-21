@@ -177,13 +177,13 @@ def setup_duplicate_course(
         while not course_found:
             sleep(30)
             print("Querying current courses")
-            courses = moodle_client.get_courses()
-            for course in courses:
-                if course["shortname"] == coursedata[CSV_COURSE_SHORTNAME]:
-                    new_course_id = course["id"]
-                    print(f"Found copy: Course ID {new_course_id}")
-                    course_found = True
-                    break
+            data = moodle_client.get_course_by_shortname(
+                coursedata[CSV_COURSE_SHORTNAME])
+            if len(data['courses']) == 0:
+                continue
+            new_course_id = data["courses"][0]['id']
+            print(f"Found copy: Course ID {new_course_id}")
+            course_found = True
 
     # Enrol teacher user as a course instructor
     moodle_client.enrol_user(

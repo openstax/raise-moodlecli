@@ -4,6 +4,8 @@ MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
+MOODLE_FUNC_GET_COURSES_BY_FIELD = "core_course_get_courses_by_field"
+
 MOODLE_FUNC_IMPORT_COURSE = "core_course_import_course"
 MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = "core_enrol_get_enrolled_users"
 MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
@@ -141,6 +143,13 @@ class MoodleClient:
 
     def get_courses(self):
         return self._get(MOODLE_FUNC_GET_COURSES)
+
+    def get_course_by_shortname(self, shortname):
+        data = {
+            "field": "shortname",
+            "value": shortname
+        }
+        return self._get(MOODLE_FUNC_GET_COURSES_BY_FIELD, data)
 
     def get_self_enrolment_methods(self, course_id, role_id):
         data = {
