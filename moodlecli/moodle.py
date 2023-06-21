@@ -5,7 +5,6 @@ MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
 MOODLE_FUNC_GET_COURSES_BY_FIELD = "core_course_get_courses_by_field"
-
 MOODLE_FUNC_IMPORT_COURSE = "core_course_import_course"
 MOODLE_FUNC_CORE_ENROL_GET_ENROLLED_USERS = "core_enrol_get_enrolled_users"
 MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
