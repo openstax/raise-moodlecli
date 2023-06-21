@@ -97,6 +97,26 @@ def test_get_courses(mocker):
     )
 
 
+def test_get_courses_by_shortname(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = {}
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_course_by_shortname('example')
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_COURSES_BY_FIELD,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN,
+            'field': 'shortname',
+            'value': 'example'
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    )
+
+
 def test_get_self_enrolment_methods(mocker):
     session_mock = mocker.Mock()
     session_mock.get.return_value.json.return_value = {}
