@@ -21,11 +21,6 @@ def moodle_requests_mock(requests_mock):
 
         if wsfunction == moodle.MOODLE_FUNC_GET_ROLE_BY_SHORTNAME:
             return {'id': 2}
-        if wsfunction == moodle.MOODLE_FUNC_GET_COURSES:
-            return [{'fullname': 'foo',
-                     'id': '1',
-                     'visible': '1',
-                     'categoryid': '1'}]
         elif wsfunction == moodle.MOODLE_FUNC_GET_USERS:
             # Used to exercise error in course_bulk_setup
             if request.qs["criteria[0][value]"][0] == 'invalid@gmail.com':

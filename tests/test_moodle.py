@@ -97,6 +97,26 @@ def test_get_courses(mocker):
     )
 
 
+def test_get_courses_by_shortname(mocker):
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = {}
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_course_by_shortname('example')
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_COURSES_BY_FIELD,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN,
+            'field': 'shortname',
+            'value': 'example'
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    )
+
+
 def test_get_self_enrolment_methods(mocker):
     session_mock = mocker.Mock()
     session_mock.get.return_value.json.return_value = {}
@@ -379,12 +399,9 @@ def test_setup_duplicate_course_timeout_workaround(mocker):
     moodle_mock.get_user_by_email.return_value = None
     moodle_mock.create_user.return_value = {"id": "userid"}
     moodle_mock.copy_course.side_effect = ConnectionError("Mock timeout")
-    moodle_mock.get_courses.side_effect = [
-        [{"shortname": "notexpectedcourse", "id": "courseid0"}],
-        [
-            {"shortname": "notexpectedcourse", "id": "courseid0"},
-            {"shortname": "testcourse", "id": "courseid"}
-        ]
+    moodle_mock.get_course_by_shortname.side_effect = [
+        {'courses': []},
+        {'courses': [{"shortname": "testcourse", "id": "courseid"}]},
     ]
     moodle_mock.get_self_enrolment_methods.return_value = [{"id": "enrolid"}]
     moodle_mock.get_course_enrolment_url.return_value = "enrolmenturl"
