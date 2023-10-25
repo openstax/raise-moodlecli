@@ -328,3 +328,28 @@ def export_bulk_csv(output_csv):
         utils.bulk_export_csv_course_ids()
     )
     writer.writeheader()
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
+@click.option('--policyversionid', type=int, help='Policy Version ID')
+@click.option('--user-ids', type=str, help='Comma-separated list of User IDs')
+def policy_acceptance_data_csv(output_csv, policyversionid, user_ids):
+    """Get policy acceptance data and save to CSV"""
+    moodle = get_moodle_client()
+
+    if user_ids:
+        user_ids = [{'id': int(id)} for id in user_ids.split(',')]
+        policy_acceptance_data = moodle.get_policy_acceptance_data(
+            policyversionid=policyversionid,
+            user_ids=user_ids)
+    else:
+        policy_acceptance_data = moodle.get_policy_acceptance_data(
+            policyversionid=policyversionid)
+
+    writer = csv.DictWriter(
+        output_csv,
+        fieldnames=['userid', 'status']
+    )
+    writer.writeheader()
+    writer.writerows(policy_acceptance_data)

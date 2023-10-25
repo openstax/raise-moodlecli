@@ -587,3 +587,30 @@ def test_get_quiz_attempt_details(mocker):
         },
         timeout=moodle.MOODLE_REQUEST_TIMEOUT
     ))
+
+
+def test_get_policy_acceptance_data(mocker):
+    policyversionid = 1
+    user_ids = [1, 2, 3]
+    session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+
+    client.get_policy_acceptance_data(policyversionid, user_ids)
+
+    client.session.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "wsfunction": moodle.MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA,
+            "policyversionid": policyversionid,
+            "user_ids[0]": 1,
+            "user_ids[1]": 2,
+            "user_ids[2]": 3,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+
+        },
+        timeout=moodle.MOODLE_REQUEST_TIMEOUT
+    )

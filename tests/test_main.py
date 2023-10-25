@@ -33,6 +33,8 @@ def moodle_requests_mock(requests_mock):
             return [{'id': 2}, {'id': 3}]
         elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
             return [{'user_id': 2, 'user_uuid': 'abcd'}]
+        elif wsfunction == moodle.MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA:
+            return [{'userid': 1, 'status': 1}, {'userid': 2, 'status': 0}]
         else:
             return []
 
@@ -375,3 +377,26 @@ def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
 
         with open('output.csv', 'r') as f:
             assert len(list(csv.DictReader(f))) == 1
+
+
+def test_policy_acceptance_data_csv(moodle_requests_mock, tmp_path):
+    runner = CliRunner()
+
+    with runner.isolated_filesystem(temp_dir=tmp_path):
+        result = runner.invoke(cli,
+                               ['policy-acceptance-data-csv', 'output.csv',
+                                '--policyversionid=1', '--user-ids=1,2'],
+                               env=TEST_ENV)
+
+        assert result.exit_code == 0
+        assert result.output.strip() == ''
+
+        with open('output.csv', 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            rows = list(reader)
+
+        assert len(rows) == 2
+        assert rows[0]['userid'] == '1'
+        assert rows[0]['status'] == '1'
+        assert rows[1]['userid'] == '2'
+        assert rows[1]['status'] == '0'
