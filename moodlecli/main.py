@@ -6,7 +6,6 @@ import requests
 from .moodle import MoodleClient
 from . import utils
 from . import aws
-import io
 
 CONTEXT_MOODLE_CLIENT_KEY = "MOODLE_CLIENT"
 
