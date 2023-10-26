@@ -348,12 +348,4 @@ def export_policy_acceptances(policyversionid, user_ids, bucket_name, key):
         policy_acceptance_data = moodle.get_policy_acceptance_data(
             policyversionid=policyversionid)
 
-    csv_string = io.StringIO()
-    writer = csv.writer(csv_string)
-    writer.writerow(['user_id', 'status'])
-    writer.writerows([(item['user_id'],
-                       item['status']) for item in policy_acceptance_data])
-    csv_string.seek(0)
-
-    aws.put_json_data(csv_string.getvalue(), bucket_name, key)
-    csv_string.close()
+    aws.put_json_data(policy_acceptance_data, bucket_name, key)

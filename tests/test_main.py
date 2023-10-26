@@ -8,7 +8,6 @@ from click.testing import CliRunner
 from moodlecli.main import cli
 import boto3
 import botocore.stub
-import io
 
 
 TEST_MOODLE_URL = "http://test-things"
@@ -384,17 +383,6 @@ def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
 def test_export_policy_acceptances(mocker, moodle_requests_mock, tmp_path):
     runner = CliRunner()
 
-    policy_acceptance_data = [
-        {"user_id": "1", "status": "1"},
-        {"user_id": "2", "status": "0"}
-    ]
-    csv_string = io.StringIO()
-    writer = csv.writer(csv_string)
-    writer.writerow(['user_id', 'status'])
-    writer.writerows(
-        [(item['user_id'], item['status']) for item in policy_acceptance_data])
-    csv_string.seek(0)
-
     mocker.patch("moodlecli.aws.put_json_data")
 
     result = runner.invoke(cli,
@@ -405,5 +393,10 @@ def test_export_policy_acceptances(mocker, moodle_requests_mock, tmp_path):
 
     assert result.exit_code == 0
 
+    policy_acceptance_data = [
+        {"user_id": 1, "status": 1},
+        {"user_id": 2, "status": 0}
+    ]
+
     aws.put_json_data.assert_called_once_with(
-        csv_string.getvalue(), 'bucket_name', 'key.csv')
+        policy_acceptance_data, 'bucket_name', 'key.csv')
