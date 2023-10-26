@@ -6,7 +6,7 @@ import requests
 from .moodle import MoodleClient
 from . import utils
 from . import aws
-
+import io
 
 CONTEXT_MOODLE_CLIENT_KEY = "MOODLE_CLIENT"
 
@@ -331,11 +331,12 @@ def export_bulk_csv(output_csv):
 
 
 @cli.command()
-@click.argument('output_csv', type=click.File(mode='w'))
 @click.option('--policyversionid', type=int, help='Policy Version ID')
 @click.option('--user-ids', type=str, help='Comma-separated list of User IDs')
-def policy_acceptance_data_csv(output_csv, policyversionid, user_ids):
-    """Get policy acceptance data and save to CSV"""
+@click.argument('bucket_name')
+@click.argument('key')
+def export_policy_acceptances(policyversionid, user_ids, bucket_name, key):
+    """Get policy acceptance data and save to CSV in S3"""
     moodle = get_moodle_client()
 
     if user_ids:
@@ -347,9 +348,12 @@ def policy_acceptance_data_csv(output_csv, policyversionid, user_ids):
         policy_acceptance_data = moodle.get_policy_acceptance_data(
             policyversionid=policyversionid)
 
-    writer = csv.DictWriter(
-        output_csv,
-        fieldnames=['userid', 'status']
-    )
-    writer.writeheader()
-    writer.writerows(policy_acceptance_data)
+    csv_string = io.StringIO()
+    writer = csv.writer(csv_string)
+    writer.writerow(['user_id', 'status'])
+    writer.writerows([(item['user_id'],
+                       item['status']) for item in policy_acceptance_data])
+    csv_string.seek(0)
+
+    aws.put_json_data(csv_string.getvalue(), bucket_name, key)
+    csv_string.close()

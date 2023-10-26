@@ -1,5 +1,5 @@
 from urllib import parse
-from moodlecli import utils, moodle
+from moodlecli import utils, moodle, aws
 import pytest
 import os
 import json
@@ -8,6 +8,8 @@ from click.testing import CliRunner
 from moodlecli.main import cli
 import boto3
 import botocore.stub
+import io
+
 
 TEST_MOODLE_URL = "http://test-things"
 TEST_MOODLE_TOKEN = "e4586db9345084f15abc7326b84dde21"
@@ -34,7 +36,7 @@ def moodle_requests_mock(requests_mock):
         elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
             return [{'user_id': 2, 'user_uuid': 'abcd'}]
         elif wsfunction == moodle.MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA:
-            return [{'userid': 1, 'status': 1}, {'userid': 2, 'status': 0}]
+            return [{'user_id': 1, 'status': 1}, {'user_id': 2, 'status': 0}]
         else:
             return []
 
@@ -379,24 +381,29 @@ def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
             assert len(list(csv.DictReader(f))) == 1
 
 
-def test_policy_acceptance_data_csv(moodle_requests_mock, tmp_path):
+def test_export_policy_acceptances(mocker, moodle_requests_mock, tmp_path):
     runner = CliRunner()
 
-    with runner.isolated_filesystem(temp_dir=tmp_path):
-        result = runner.invoke(cli,
-                               ['policy-acceptance-data-csv', 'output.csv',
-                                '--policyversionid=1', '--user-ids=1,2'],
-                               env=TEST_ENV)
+    policy_acceptance_data = [
+        {"user_id": "1", "status": "1"},
+        {"user_id": "2", "status": "0"}
+    ]
+    csv_string = io.StringIO()
+    writer = csv.writer(csv_string)
+    writer.writerow(['user_id', 'status'])
+    writer.writerows(
+        [(item['user_id'], item['status']) for item in policy_acceptance_data])
+    csv_string.seek(0)
 
-        assert result.exit_code == 0
-        assert result.output.strip() == ''
+    mocker.patch("moodlecli.aws.put_json_data")
 
-        with open('output.csv', 'r') as csvfile:
-            reader = csv.DictReader(csvfile)
-            rows = list(reader)
+    result = runner.invoke(cli,
+                           ['export-policy-acceptances',
+                            '--policyversionid=1', '--user-ids=1,2',
+                            'bucket_name', 'key.csv'],
+                           env=TEST_ENV)
 
-        assert len(rows) == 2
-        assert rows[0]['userid'] == '1'
-        assert rows[0]['status'] == '1'
-        assert rows[1]['userid'] == '2'
-        assert rows[1]['status'] == '0'
+    assert result.exit_code == 0
+
+    aws.put_json_data.assert_called_once_with(
+        csv_string.getvalue(), 'bucket_name', 'key.csv')
