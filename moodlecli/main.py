@@ -339,5 +339,4 @@ def export_policy_acceptances(policyversionid, bucket_name, key):
 
     policy_acceptance_data = moodle.get_policy_acceptance_data(
         policyversionid=policyversionid)
-    print(policy_acceptance_data)
     aws.put_json_data(policy_acceptance_data, bucket_name, key)
