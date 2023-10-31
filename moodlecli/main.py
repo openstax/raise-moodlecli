@@ -330,21 +330,14 @@ def export_bulk_csv(output_csv):
 
 
 @cli.command()
-@click.option('--policyversionid', type=int, help='Policy Version ID')
-@click.option('--user-ids', type=str, help='Comma-separated list of User IDs')
+@click.argument('policyversionid')
 @click.argument('bucket_name')
 @click.argument('key')
-def export_policy_acceptances(policyversionid, user_ids, bucket_name, key):
-    """Get policy acceptance data and save to CSV in S3"""
+def export_policy_acceptances(policyversionid, bucket_name, key):
+    """Get policy acceptance data and save to JSON in S3"""
     moodle = get_moodle_client()
 
-    if user_ids:
-        user_ids = [{'id': int(id)} for id in user_ids.split(',')]
-        policy_acceptance_data = moodle.get_policy_acceptance_data(
-            policyversionid=policyversionid,
-            user_ids=user_ids)
-    else:
-        policy_acceptance_data = moodle.get_policy_acceptance_data(
-            policyversionid=policyversionid)
-
+    policy_acceptance_data = moodle.get_policy_acceptance_data(
+        policyversionid=policyversionid)
+    print(policy_acceptance_data)
     aws.put_json_data(policy_acceptance_data, bucket_name, key)

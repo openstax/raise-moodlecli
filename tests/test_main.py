@@ -380,17 +380,17 @@ def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
             assert len(list(csv.DictReader(f))) == 1
 
 
-def test_export_policy_acceptances_with_userids(mocker,
-                                                moodle_requests_mock,
-                                                tmp_path):
+def test_export_policy_acceptances(mocker,
+                                   moodle_requests_mock,
+                                   tmp_path):
     runner = CliRunner()
 
     mocker.patch("moodlecli.aws.put_json_data")
 
     result = runner.invoke(cli,
                            ['export-policy-acceptances',
-                            '--policyversionid=1', '--user-ids=1,2',
-                            'bucket_name', 'key.csv'],
+                            '1',
+                            'bucket_name', 'key.json'],
                            env=TEST_ENV)
 
     assert result.exit_code == 0
@@ -401,28 +401,4 @@ def test_export_policy_acceptances_with_userids(mocker,
     ]
 
     aws.put_json_data.assert_called_once_with(
-        policy_acceptance_data, 'bucket_name', 'key.csv')
-
-
-def test_export_policy_acceptances_without_userids(mocker,
-                                                   moodle_requests_mock,
-                                                   tmp_path):
-    runner = CliRunner()
-
-    mocker.patch("moodlecli.aws.put_json_data")
-
-    result = runner.invoke(cli,
-                           ['export-policy-acceptances',
-                            '--policyversionid=1',
-                            'bucket_name', 'key.csv'],
-                           env=TEST_ENV)
-
-    assert result.exit_code == 0
-
-    policy_acceptance_data = [
-        {"user_id": 1, "status": 1},
-        {"user_id": 2, "status": 0}
-    ]
-
-    aws.put_json_data.assert_called_once_with(
-        policy_acceptance_data, 'bucket_name', 'key.csv')
+        policy_acceptance_data, 'bucket_name', 'key.json')

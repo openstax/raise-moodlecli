@@ -276,9 +276,8 @@ class MoodleClient:
         }
         return self._get(MOODLE_FUNC_GET_QUIZ_ATTEMPT, data)
 
-    def get_policy_acceptance_data(self, policyversionid, user_ids=[]):
+    def get_policy_acceptance_data(self, policyversionid):
         data = {
             "policyversionid": policyversionid,
-            "user_ids": user_ids
         }
         return self._get(MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA, data)
