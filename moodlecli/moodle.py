@@ -24,7 +24,8 @@ MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
     "local_raisecli_set_self_enrolment_method_key"
 MOODLE_FUNC_GET_QUIZZES_BY_COURSES = "mod_quiz_get_quizzes_by_courses"
 MOODLE_FUNC_GET_USER_QUIZ_ATTEMPTS = "mod_quiz_get_user_attempts"
-
+MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA =  \
+    "local_raisecli_get_policy_acceptance_data"
 MOODLE_REQUEST_TIMEOUT = 360  # 6 minutes
 
 
@@ -274,3 +275,9 @@ class MoodleClient:
             "attemptid": attempt_id
         }
         return self._get(MOODLE_FUNC_GET_QUIZ_ATTEMPT, data)
+
+    def get_policy_acceptance_data(self, policyversionid):
+        data = {
+            "policyversionid": policyversionid,
+        }
+        return self._get(MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA, data)

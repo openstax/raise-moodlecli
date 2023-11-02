@@ -1,5 +1,5 @@
 from urllib import parse
-from moodlecli import utils, moodle
+from moodlecli import utils, moodle, aws
 import pytest
 import os
 import json
@@ -8,6 +8,7 @@ from click.testing import CliRunner
 from moodlecli.main import cli
 import boto3
 import botocore.stub
+
 
 TEST_MOODLE_URL = "http://test-things"
 TEST_MOODLE_TOKEN = "e4586db9345084f15abc7326b84dde21"
@@ -33,6 +34,8 @@ def moodle_requests_mock(requests_mock):
             return [{'id': 2}, {'id': 3}]
         elif wsfunction == moodle.MOODLE_FUNC_GET_USER_UUIDS:
             return [{'user_id': 2, 'user_uuid': 'abcd'}]
+        elif wsfunction == moodle.MOODLE_FUNC_GET_POLICY_ACCEPTANCE_DATA:
+            return [{'user_id': 1, 'status': 1}, {'user_id': 2, 'status': 0}]
         else:
             return []
 
@@ -375,3 +378,27 @@ def test_course_bulk_setup_error(moodle_requests_mock, tmp_path):
 
         with open('output.csv', 'r') as f:
             assert len(list(csv.DictReader(f))) == 1
+
+
+def test_export_policy_acceptances(mocker,
+                                   moodle_requests_mock,
+                                   tmp_path):
+    runner = CliRunner()
+
+    mocker.patch("moodlecli.aws.put_json_data")
+
+    result = runner.invoke(cli,
+                           ['export-policy-acceptances',
+                            '1',
+                            'bucket_name', 'key.json'],
+                           env=TEST_ENV)
+
+    assert result.exit_code == 0
+
+    policy_acceptance_data = [
+        {"user_id": 1, "status": 1},
+        {"user_id": 2, "status": 0}
+    ]
+
+    aws.put_json_data.assert_called_once_with(
+        policy_acceptance_data, 'bucket_name', 'key.json')

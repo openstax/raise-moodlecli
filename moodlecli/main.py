@@ -7,7 +7,6 @@ from .moodle import MoodleClient
 from . import utils
 from . import aws
 
-
 CONTEXT_MOODLE_CLIENT_KEY = "MOODLE_CLIENT"
 
 
@@ -328,3 +327,16 @@ def export_bulk_csv(output_csv):
         utils.bulk_export_csv_course_ids()
     )
     writer.writeheader()
+
+
+@cli.command()
+@click.argument('policyversionid')
+@click.argument('bucket_name')
+@click.argument('key')
+def export_policy_acceptances(policyversionid, bucket_name, key):
+    """Get policy acceptance data and save to JSON in S3"""
+    moodle = get_moodle_client()
+
+    policy_acceptance_data = moodle.get_policy_acceptance_data(
+        policyversionid=policyversionid)
+    aws.put_json_data(policy_acceptance_data, bucket_name, key)
