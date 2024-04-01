@@ -150,73 +150,28 @@ def setup_duplicate_course(
     moodle_client, base_course_id, coursedata, instructor_role_id,
     student_role_id
 ):
-    """Setup a new course using a base and data from bulk CSV"""
     # Retrieve or create teacher account
     instructor_user_id = create_or_get_user(
         moodle_client,
         coursedata[CSV_INST_FNAME],
         coursedata[CSV_INST_LNAME],
         coursedata[CSV_INST_EMAIL],
-        coursedata[CSV_INST_AUTH]
-    )
-    try:
-        # Create a duplicate course using the base course
-        new_course = moodle_client.copy_course(
-            base_course_id,
-            coursedata[CSV_COURSE_NAME],
-            coursedata[CSV_COURSE_SHORTNAME],
-            coursedata[CSV_COURSE_CATEGORY]
+        coursedata[CSV_INST_AUTH],
         )
-        new_course_id = new_course["id"]
-    except (ConnectionError, Timeout):
-        # Implement work around for Global Accelerator timeout of 340s
-        # (refer to https://github.com/openstax/k12/issues/316 for details)
-        print("Remote disconnected during course copy!")
-        print(f"Polling for course {coursedata[CSV_COURSE_SHORTNAME]}...")
-        course_found = False
-        while not course_found:
-            sleep(30)
-            print("Querying current courses")
-            data = moodle_client.get_course_by_shortname(
-                coursedata[CSV_COURSE_SHORTNAME])
-            if len(data['courses']) == 0:
-                continue
-            new_course_id = data["courses"][0]['id']
-            print(f"Found copy: Course ID {new_course_id}")
-            course_found = True
-
-    # Enrol teacher user as a course instructor
-    moodle_client.enrol_user(
-        new_course_id,
+    """Setup a new course using a base and data from bulk CSV"""
+    course = course_creation(
+        moodle_client,
+        base_course_id,
+        coursedata[CSV_COURSE_NAME],
+        coursedata[CSV_COURSE_SHORTNAME],
+        coursedata[CSV_COURSE_CATEGORY],
+        instructor_role_id,
         instructor_user_id,
-        instructor_role_id
+        student_role_id,
     )
-
-    # Get enrolment ID for course and student role
-    enrolments = moodle_client.get_self_enrolment_methods(
-        new_course_id,
-        student_role_id
-    )
-    if len(enrolments) != 1:
-        raise Exception(
-            "Unexpected number of student self enrolment methods found "
-            f"for course {new_course_id}"
-        )
-    student_enrolment_id = enrolments[0]["id"]
-
-    # Enable enrolment and set enrolment key
-    moodle_client.enable_self_enrolment_method(student_enrolment_id)
-    enrolment_key = generate_friendly_password()
-    moodle_client.set_self_enrolment_method_key(
-        student_enrolment_id,
-        enrolment_key
-    )
-
-    # Return updated course dict adding course ID and enrolment URL / key
-    coursedata[CSV_COURSE_ID] = new_course_id
-    coursedata[CSV_COURSE_ENROLMENT_URL] = \
-        moodle_client.get_course_enrolment_url(new_course_id)
-    coursedata[CSV_COURSE_ENROLMENT_KEY] = enrolment_key
+    coursedata[CSV_COURSE_ID] = course["course_id"]
+    coursedata[CSV_COURSE_ENROLMENT_URL] = course["course_enrolment_url"]
+    coursedata[CSV_COURSE_ENROLMENT_KEY] = course["course_enrolment_key"]
 
     return coursedata
 
@@ -343,3 +298,78 @@ def update_grades_data(moodle_client, course_id, old_grades):
             new_grades["attempts"][user_id][quiz_id] = tmp_attempts
 
     return new_grades
+
+
+def course_creation(
+    moodle_client,
+    base_course_id,
+    course_name,
+    course_shortname,
+    course_category,
+    instructor_role_id,
+    instructor_user_id,
+    student_role_id,
+):
+    try:
+        # Create a duplicate course using the base course
+        new_course = moodle_client.copy_course(
+            base_course_id,
+            course_name,
+            course_shortname,
+            course_category,
+        )
+        new_course_id = new_course["id"]
+    except (ConnectionError, Timeout):
+        # Implement work around for Global Accelerator timeout of 340s
+        # (refer to https://github.com/openstax/k12/issues/316 for details)
+        print("Remote disconnected during course copy!")
+        print(f"Polling for course {course_shortname}...")
+        course_found = False
+        while not course_found:
+            sleep(30)
+            print("Querying current courses")
+            data = moodle_client.get_course_by_shortname(
+                course_shortname
+            )
+            if len(data["courses"]) == 0:
+                continue
+            new_course_id = data["courses"][0]["id"]
+            print(f"Found copy: Course ID {new_course_id}")
+            course_found = True
+
+    # Enrol teacher user as a course instructor
+    moodle_client.enrol_user(
+        new_course_id,
+        instructor_user_id,
+        instructor_role_id,
+    )
+
+    # Get enrolment ID for course and student role
+    enrolments = moodle_client.get_self_enrolment_methods(
+        new_course_id, student_role_id
+    )
+    if len(enrolments) != 1:
+        raise Exception(
+            "Unexpected number of student self enrolment methods found "
+            f"for course {new_course_id}"
+        )
+    student_enrolment_id = enrolments[0]["id"]
+
+    # Enable enrolment and set enrolment key
+    moodle_client.enable_self_enrolment_method(student_enrolment_id)
+    enrolment_key = generate_friendly_password()
+    moodle_client.set_self_enrolment_method_key(
+        student_enrolment_id,
+        enrolment_key,
+    )
+
+    # Return updated course dict adding course ID and enrolment URL / key
+    course_enrolment_url = moodle_client.get_course_enrolment_url(
+        new_course_id
+    )
+
+    return {
+        "course_id": new_course_id,
+        "course_enrolment_url": course_enrolment_url,
+        "course_enrolment_key": enrolment_key,
+    }
